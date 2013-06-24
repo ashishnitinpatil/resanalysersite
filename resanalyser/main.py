@@ -302,6 +302,7 @@ class StudentHandler(webapp2.RequestHandler):
     def render(self,roll):
         template_values={}
         roll = self.request.get('roll')
+        roll = roll.upper()
         path = "student.html"
         template_values['present'] = True
         template_values['roll'] = roll
