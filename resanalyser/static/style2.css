@@ -1,0 +1,30 @@
+body
+	{
+		background-color:#DDDDDD;
+		position: relative;
+		font-family: Helvetica, Arial, sans-serif;
+		text-align: center;
+		width: 80%;
+		height: 100%;
+		margin: 0% 10%;
+	}
+a
+	{
+		text-decoration: none;
+	}
+a:hover
+	{
+        color: white;
+		text-decoration: underline;
+	}
+.immo{
+        color: red;
+        text-decoration: none;
+    }
+.immo:hover{
+        text-decoration: blink;
+    }
+.center{
+        width:400px;
+        margin: 0 auto;
+    }
