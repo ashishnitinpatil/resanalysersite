@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="shortcut icon" href="/static/favicon.ico" />
 <meta name="description" content="ResAnalyser is a website for analysing results of VNIT, Nagpur." />
-<meta name="keywords" content="Result,VNIT,Analyser,Nagpur,NIT,Resanalyser" />
+<meta name="keywords" content="Result,VNIT,Analyser,Nagpur,NIT,Resanalyser,Statistics" />
 <meta http-equiv="cache-control" content="no-store" />
 <meta http-equiv="content-language" content="en-US" />
 <title>List of all Courses</title>
@@ -21,14 +21,13 @@
 </script>
 <!--End of Google Analytics script-->
 </head>
-	<body>
-		<h3>List of all Courses</h3>
-		<div style="text-align:left">
-        <ol>
-		{% for each in data %}
-		<li><a href="/courses?course={{each}}">{{each}}</a></li>
-		{% endfor %}
-        <ol>
-        <br/>
-	</body>
-</html>
+<body>
+    <h3>List of all Courses</h3>
+    <div style="text-align:left">
+    <ol>
+    {% for each in data %}
+    <li><a href="/courses?serial={{each.0}}">({{each.0}}) {{each.1}}</a></li>
+    {% endfor %}
+    <ol>
+    <br/>
+</body>

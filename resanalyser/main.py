@@ -1,7 +1,7 @@
-# Copyright 2013 @!mmorta!
+#!/usr/bin/env python
+# Copyleft 2013 @!mmorta!
 #
 # Licensed under Creative Commons Attribution-ShareAlike 3.0 Unported License;
-# Please refer to the LICENSE.txt for details.
 
 #All the importing business goes here...
 import os, re, sys, time, logging
@@ -11,37 +11,23 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
+# Globals --->
 
-# Begin ResAnalyser --->
-
-latest_term = ['AUTUMN 2012','RE-EXAM AUTUMN 2012']
+latest_terms = ['AUTUMN 2012','RE-EXAM AUTUMN 2012']
 database = {} # For individual student data storing
-course_data = {} # For record keeping of every course for every sem
-rank_data = {} # Marklists for all dept, batches, etc
-grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':0,'FF':0,'SS':0}
+course_data = {} # For record keeping of every course for every semester
+rank_data = {} # Mark-lists for all departments, batches, etc.
+cg_distribution = {} # Stores cg statistics (gradified)
+grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':0,'FF':0,'SS':10}
 terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
 data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
 course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
 rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
+course_stats_file = open(os.path.join(os.getcwd(),'course_stats.txt'),'r')
+cg_avgs_file = open(os.path.join(os.getcwd(),'cg_avgs.txt'),'r')
+cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
 
-def gather_data(needed='Student'): # Load stuff from the txt files
-    global database, course_data, rank_data, rank_file, course_file, data_file
-    if needed == 'Course':
-        if course_file.closed:
-            course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
-        course_data = json.load(course_file)
-        course_file.close()
-    else:
-        if data_file.closed:
-            data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
-        if rank_file.closed:
-            rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
-        database = json.load(data_file)
-        data_file.close()
-        rank_data = json.load(rank_file)
-        rank_file.close()
-
-# Analysis shit! :-P  -->
+# Analysis shit! :-P  (Apparently I can't separate the globals or whatever & so have to include the whole ResAnalyser.Analyser class)-->
 
 class Analyser:
     def All_Courses(self,serial=True, terms=True, alphabetically = True):
@@ -63,7 +49,7 @@ class Analyser:
                 return database[roll]
             else:
                 return database[roll]['Records'][term]
-    def Make_Marklist(self,course=False,course_term=None,branch=None,batch=None,term=latest_term[0],cg=False,sg=False,names=False):
+    def Make_Marklist(self,course=False,course_term=None,branch=None,batch=None,term=latest_terms[0],cg=False,sg=False,names=False):
         mark_list = []
         if course and course in course_data:
             if course_term and course_term in course_data[course]['Records']:
@@ -236,7 +222,7 @@ class Analyser:
             cur_data['courses'], cur_data['data'] = [], []
             cur_data['name'] = term.encode('ascii','ignore')
             for course in stud_data['Records'][term]['Courses']:
-                cur_data['courses'].append(course.encode('ascii','ignore'))
+                cur_data['courses'].append((course_data[course]['Name']+' ('+course+')').encode('ascii','ignore'))
                 cur_data['data'].append(stud_data['Records'][term]['Courses'][course])
             term_data.append(cur_data)
             terms.append(cur_data['name'])
@@ -246,10 +232,39 @@ class Analyser:
         to_return.append(term_data)
         return to_return
 
+    # End of Analyser
 
-    # End of Analyser...
-
-# <--- End of ResAnalyser
+def gather_data(): # Load stuff from the text files
+    """Don't have much faith on GAE to keep so much data in memory ready at all times.
+       So, just making sure that every time I need certain data, it is ready to be accessed!
+    """
+    global database, course_data, rank_data, cg_distribution, cg_avgs, course_stats
+    global data_file, course_file, rank_file, cg_distribution_file, cg_avgs_file, course_stats_file
+    
+    if course_file.closed:
+        course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
+    if data_file.closed:
+        data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
+    if rank_file.closed:
+        rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
+    if cg_distribution_file.closed:
+        cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
+    if cg_avgs_file.closed:
+        cg_avgs_file = open(os.path.join(os.getcwd(),'cg_avgs.txt'),'r')
+    if course_stats_file.closed:
+        course_stats_file = open(os.path.join(os.getcwd(),'course_stats.txt'),'r')
+    course_stats = json.load(course_stats_file)
+    course_stats_file.close()
+    cg_avgs = json.load(cg_avgs_file)
+    cg_avgs_file.close()
+    cg_distribution = json.load(cg_distribution_file)
+    cg_distribution_file.close()
+    course_data = json.load(course_file)
+    course_file.close()
+    database = json.load(data_file)
+    data_file.close()
+    rank_data = json.load(rank_file)
+    rank_file.close()
 
 #All the necessary funcs go here...
 
@@ -258,26 +273,27 @@ gather_data() # Initialize!
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        path = "index.html"
-        template_values={}
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render("index.html", {}))
 
 class CourseHandler(webapp2.RequestHandler):
     def get(self):
         template_values={}
-        course = self.request.get('course')
-        template_values['course'] = course
-        gather_data('Course')
-        if course in (None,False,"","all"):
+        serial = self.request.get('serial')
+        template_values['serial'] = serial
+        gather_data()
+        if serial in (None,False,"","all"):
             path = "course_all.html"
-            data = sorted(course_data.keys())
+            #data = sorted(course_data.keys())
+            data = sorted(map(lambda x: (x,course_data[x]['Name']),course_data),key=lambda x: x[0])
             template_values['data'] = data
         else:
             path = "courses.html"
             q = self.request.get('q')
             if q == 'data':
-                data = course_data[course]
+                data = course_data[serial]
             else:
+                course = course_data[serial]['Name']
+                template_values['course'] = course
                 re = self.request.get('exclude_re')
                 per = self.request.get('percent')
                 exclude_re,percent = True,True
@@ -286,11 +302,11 @@ class CourseHandler(webapp2.RequestHandler):
                 if str(per) == '0':
                     percent = False
                 data = None
-                render_data = memcache.get('_course_'+str(course)+str(exclude_re)+str(percent))
+                render_data = memcache.get('_course_'+str(serial)+str(exclude_re)+str(percent))
                 if not render_data:
                     do = Analyser()
-                    render_data = do.Course_Performance(course,exclude_re,percent)
-                    memcache.set('_course_'+str(course)+str(exclude_re)+str(percent),render_data)
+                    render_data = do.Course_Performance(serial,exclude_re,percent)
+                    memcache.set('_course_'+str(serial)+str(exclude_re)+str(percent),render_data)
                 template_values['terms'] = render_data[0]
                 template_values['series'] = render_data[1]
                 template_values['exclude_re'] = exclude_re
@@ -348,6 +364,55 @@ class StudentHandler(webapp2.RequestHandler):
         roll = self.request.get('roll')
         self.render(roll)
 
+class StatsHandler(webapp2.RequestHandler):
+    def get(self):
+        template_values={}
+        path = "stats.html"
+        template_values['present'] = True
+        batch = self.request.get('batch','')
+        branch = self.request.get('branch','')
+        gather_data()
+        if not branch and not batch: # Display all statistics links
+            data = memcache.get('_stats_data')
+            if not data:
+                data = {'Lists':[],'Dicts':{}}
+                for each in cg_distribution['FalseFalse']:
+                    if isinstance(cg_distribution['FalseFalse'][each], list):
+                        data['Lists'].append(each)
+                    else:
+                        data['Dicts'][each] = sorted(list(cg_distribution['FalseFalse'][each].keys()))
+                data['Lists'] = sorted(data['Lists'])
+                memcache.set('_stats_data',data)
+            template_values['data'] = data
+        else:                        # Display the relevant statistics
+            cumulative = self.request.get('cumulative',False)
+            percent = self.request.get('percent',True)
+            
+            if str(percent) == '0':
+                percent = False
+            else:
+                percent = True
+            if str(cumulative) == '0':
+                cumulative = False
+            else:
+                cumulative = True
+            template_values['percent'] = percent
+            template_values['cumulative'] = cumulative
+            template_values['branch'] = branch
+            template_values['batch'] = batch
+            series = memcache.get('_stats_'+str(percent)+str(cumulative)+str(branch)+str(batch))
+            if not series:
+                if not branch:
+                    series = cg_distribution[str(percent)+str(cumulative)][batch]
+                else:
+                    if not batch:
+                        series = cg_distribution[str(percent)+str(cumulative)][branch]['All']
+                    else:
+                        series = cg_distribution[str(percent)+str(cumulative)][branch][batch]
+                memcache.set('_stats_'+str(percent)+str(cumulative)+str(branch)+str(batch),series)
+            template_values['series'] = series
+        self.response.out.write(template.render(path, template_values))
+
 class MarklistHandler(webapp2.RequestHandler):
     def get(self):
         path = "marklist.html"
@@ -368,23 +433,70 @@ class MarklistHandler(webapp2.RequestHandler):
         template_values['data'] = data
         self.response.out.write(template.render(path, template_values))
 
+class PerformanceHandler(webapp2.RequestHandler):
+    def get(self):
+        path = "performance.html"
+        template_values = {}
+        q = self.request.get('q',False)
+        gather_data()
+        if q == 'batchwise':
+            template_values['batchwise'] = True
+            to_render = memcache.get('_perf_batchwise')
+            if not to_render:
+                template_values['batches'] = cg_avgs[1]
+                to_render = template.render(path, template_values)
+                memcache.set('_perf_batchwise', to_render)
+        else:
+            template_values['batchwise'] = False
+            to_render = memcache.get('_perf_complete')
+            if not to_render:
+                to_render = template.render(path, template_values)
+                memcache.set('_perf_complete', to_render)
+        self.response.out.write(to_render)
+
+class CoursePerfHandler(webapp2.RequestHandler):
+    def get(self):
+        path = "course_perf.html"
+        template_values = {}
+        to_render = memcache.get('_perf_course')
+        if not to_render:
+            gather_data()
+            template_values['course_stats'] = course_stats
+            to_render = template.render(path, template_values)
+            memcache.set('_perf_course',to_render)
+        self.response.out.write(to_render)
+
 class PrivacyHandler(webapp2.RequestHandler):
     def get(self):
-        path = "privacy.html"
-        template_values={}
-        self.response.out.write(template.render(path, template_values))
+        to_render = memcache.get('_static_privacy')
+        if not to_render:
+            to_render = template.render("privacy.html", {})
+            memcache.set('_static_privacy',to_render)
+        self.response.out.write(to_render)
 
 class TOSHandler(webapp2.RequestHandler):
     def get(self):
-        path = "tos.html"
-        template_values={}
-        self.response.out.write(template.render(path, template_values))
+        to_render = memcache.get('_static_tos')
+        if not to_render:
+            to_render = template.render("tos.html", {})
+            memcache.set('_static_tos',to_render)
+        self.response.out.write(to_render)
 
 class AboutHandler(webapp2.RequestHandler):
     def get(self):
-        path = "about.html"
-        template_values={}
-        self.response.out.write(template.render(path, template_values))
+        to_render = memcache.get('_static_about')
+        if not to_render:
+            to_render = template.render("about.html", {})
+            memcache.set('_static_about',to_render)
+        self.response.out.write(to_render)
+        
+class ChangelogHandler(webapp2.RequestHandler):
+    def get(self):
+        to_render = memcache.get('_static_changelog')
+        if not to_render:
+            to_render = template.render("changelog.html", {})
+            memcache.set('_static_changelog',to_render)
+        self.response.out.write(to_render)
 
 class TestHandler(webapp2.RequestHandler):
     def get(self):
@@ -413,7 +525,10 @@ def handle_500(request, response, exception):
 
 
 #Alas, the main app (appengine def)...
-app = webapp2.WSGIApplication([('/',MainHandler),('/courses',CourseHandler),('/student',StudentHandler),('/marklist',MarklistHandler),('/tos',TOSHandler),('/about',AboutHandler),('/privacy',PrivacyHandler),('/testing',TestHandler),('/testing2',Test2Handler)],
-                              debug=True)
+app = webapp2.WSGIApplication([('/',MainHandler),('/courses',CourseHandler),('/student',StudentHandler),('/marklist',MarklistHandler),
+                               ('/tos',TOSHandler),('/about',AboutHandler),('/privacy',PrivacyHandler),('/testing',TestHandler),
+                               ('/changelog',ChangelogHandler),('/stats',StatsHandler),('/performance',PerformanceHandler),
+                               ('/courseperf',CoursePerfHandler),('/testing2',Test2Handler)],
+                               debug=True)
 app.error_handlers[404] = handle_404
 app.error_handlers[500] = handle_500

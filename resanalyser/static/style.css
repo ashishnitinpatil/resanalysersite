@@ -1,23 +1,26 @@
 body
 	{
-		background-color:#DDDDDD;
+		background:#222222 url('/static/bg_img.jpg') repeat fixed center;
 		position: relative;
-		font-family: Helvetica, Arial, sans-serif;
+		font-family: Courier New, Arial, Times New Roman, sans-serif;
+        color: white;
 		text-align: center;
 		width: 80%;
 		height: 100%;
 		margin: 0% 10%;
 	}
-.new:hover{
+.new
+        {
         color: red;
-        text-decoration: blink;
     }
-.immo{
-        color: red;
+.immo
+        {
+        color: green;
         text-decoration: none;
     }
-.immo:hover{
-        text-decoration: blink;
+.immo:hover
+        {
+        text-decoration: underline;
     }
 table
 	{
@@ -27,39 +30,42 @@ table
         margin-left: auto;
         margin-right: auto;
 	}
-table.data {
+.left
+        {
+        text-align : left;
+    }
+table.data 
+        {
         width: 270px;
-}
+    }
+h1,h2,h3,h4
+        {
+    font-family: Comic Sans MS, Arial, Times New Roman, Courier New, sans-serif;
+    color: orange;
+    }
 .bot
 	{
 		width: 100%;
 		position:relative;
 		word-spacing:50px;
-		font-size:14px;
+		font-size:2;
 		white-space:nowrap;
 	}
 a
 	{
+        color: orange;
 		text-decoration: none;
 	}
 a:hover
 	{
-        color: white;
 		text-decoration: underline;
 	}
-.center{
+.center
+        {
 		text-align: center;
 	}
-td{
-		text-align: center;
-		-o-text-overflow: ellipsis;   /* Opera */
-		text-overflow: ellipsis;   /* IE, Safari (WebKit) */
-		overflow:hidden;              /* don't show excess chars */
-		white-space:nowrap;
-		text-decoration: none;
-		font-size: 2;
-	}
-.data{
+td
+        {
 		text-align: left;
 		-o-text-overflow: ellipsis;   /* Opera */
 		text-overflow: ellipsis;   /* IE, Safari (WebKit) */
@@ -68,10 +74,17 @@ td{
 		text-decoration: none;
 		font-size: 2;
 	}
-.error{
-		font-size: 14px;
-		color: red;
+.data
+        {
+		text-align: left;
+		-o-text-overflow: ellipsis;   /* Opera */
+		text-overflow: ellipsis;   /* IE, Safari (WebKit) */
+		overflow:hidden;              /* don't show excess chars */
+		white-space:nowrap;
+		text-decoration: none;
+		font-size: 2;
 	}
-li{
-        color: red;
-    }
+.error
+        {
+		color: purple;
+	}

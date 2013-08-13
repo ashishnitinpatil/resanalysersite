@@ -4,4 +4,4 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by/3.0
 IMPORTANT -
 # The college publicly displays the results which is not quite right.
 # Not everyone is as open as one wants to be. Respect that. Please.
-# The LICENSE does permit you to do anything with dignity.
+# The LICENSE does permit you to do anything (with dignity).

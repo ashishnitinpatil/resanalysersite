@@ -20,30 +20,29 @@
 </script>
 <!--End of Google Analytics script-->
 </head>
-	<body>
-		<h3>Marklist Generation & Analysis</h3>
-		{% if data %}
-		<div class="data">
-		{% for each in data %}
-		<br/>>> {{ each }}
-		{% endfor %}
-		</div>
-		{% else %}
-		<form method="post">
-		<table>
-			<tr>
-				<td>Customize your Marklist, then hit submit to generate & analyze it!</td>
-			</tr>
-			<tr><br/></tr>
-			<tr>
-				<td><input type="checkbox" name="serial" id="serial"></input>Course Serial</td>
-			</tr>
-			<tr>
-				<td><input type="checkbox" name="terms" id="terms"></input>Course Terms in Database</td>
-			</tr>
-		</table>
-		<input type="submit" value="Submit"></input>
-		</form>
-		{% endif %}
-	</body>
-</html>
+<body>
+    <h3>Marklist Generation & Analysis</h3>
+    {% if data %}
+    <div class="data">
+    {% for each in data %}
+    <br/>>> {{ each }}
+    {% endfor %}
+    </div>
+    {% else %}
+    <form method="post">
+    <table>
+        <tr>
+            <td>Customize your Marklist, then hit submit to generate & analyze it!</td>
+        </tr>
+        <tr><br/></tr>
+        <tr>
+            <td><input type="checkbox" name="serial" id="serial"></input>Course Serial</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="terms" id="terms"></input>Course Terms in Database</td>
+        </tr>
+    </table>
+    <input type="submit" value="Submit"></input>
+    </form>
+    {% endif %}
+</body>

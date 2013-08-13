@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/static/favicon.ico" />
+<meta http-equiv="cache-control" content="public" />
+<meta http-equiv="content-language" content="en-US" />
+<meta name="keywords" content="Result,VNIT,Analyser,Nagpur,NIT,Resanalyser,Statistics" />
+<meta name="description" content="ResAnalyser is a website for analysing results of VNIT, Nagpur." />
+<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" /> 
+<title>Course Performance Stats</title>
+</head>
+<body>
+    <h2>Course Performance Stats</h2>
+    (For courses with total students registered over all the years >= 50)
+    {% for stat, stat_data in course_stats.items %}
+    <h3>{{ stat }}</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        {% for c_data in stat_data %}
+            <tr>
+                <td>{{ c_data.0 }}</td>
+                <td>{{ c_data.1 }}</td>
+                <td>{{ c_data.2 }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endfor %}
+    <br/><br/>
+</body>
