@@ -12,18 +12,762 @@
 <body>
     <h2>Course Performance Stats</h2>
     (For courses with total students registered over all the years >= 50)
-    {% for stat, stat_data in course_stats.items %}
-    <h3>{{ stat }}</h3>
+    
+    <h3>Best CGs</h3>
         <table>
         <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
-        {% for c_data in stat_data %}
+        
             <tr>
-                <td>{{ c_data.0 }}</td>
-                <td>{{ c_data.1 }}</td>
-                <td>{{ c_data.2 }}</td>
+                <td>PEB151</td>
+                <td>SPORTS</td>
+                <td>10.0</td>
             </tr>
-        {% endfor %}
+        
+            <tr>
+                <td>MEP102</td>
+                <td>WORKSHOP</td>
+                <td>9.70472440945</td>
+            </tr>
+        
+            <tr>
+                <td>MEP101</td>
+                <td>WORKSHOP</td>
+                <td>9.68241673122</td>
+            </tr>
+        
+            <tr>
+                <td>CMD453</td>
+                <td>SEMINAR AND GROUP DISCUSSION PROGRAM</td>
+                <td>9.50704225352</td>
+            </tr>
+        
+            <tr>
+                <td>MEP304</td>
+                <td>DESIGN LAB</td>
+                <td>9.50176678445</td>
+            </tr>
+        
+            <tr>
+                <td>CMP462</td>
+                <td>CHEMICAL REACTION ENGINEERING</td>
+                <td>9.46478873239</td>
+            </tr>
+        
+            <tr>
+                <td>CED401</td>
+                <td>PROJECT PHASE I</td>
+                <td>9.43820224719</td>
+            </tr>
+        
+            <tr>
+                <td>CMP463</td>
+                <td>PROCESS CONTROL INSTRUMENTATION</td>
+                <td>9.38571428571</td>
+            </tr>
+        
+            <tr>
+                <td>MMD401</td>
+                <td>PROJECT PHASE I</td>
+                <td>9.35714285714</td>
+            </tr>
+        
+            <tr>
+                <td>CMD452</td>
+                <td>PROJECT PHASE II</td>
+                <td>9.34782608696</td>
+            </tr>
+        
+            <tr>
+                <td>CML473</td>
+                <td>SAFETY RISK ANALYSIS</td>
+                <td>9.34782608696</td>
+            </tr>
+        
+            <tr>
+                <td>CED312</td>
+                <td>MINI PROJECT</td>
+                <td>9.34636871508</td>
+            </tr>
+        
+            <tr>
+                <td>EED401</td>
+                <td>PROJECT PHASE I</td>
+                <td>9.34020618557</td>
+            </tr>
+        
+            <tr>
+                <td>CMP264</td>
+                <td>FLUID MECHANICS AND MECHANICAL OPERATION-I</td>
+                <td>9.30042918455</td>
+            </tr>
+        
+            <tr>
+                <td>ARL408</td>
+                <td>OFFICE PRACTICES</td>
+                <td>9.2688172043</td>
+            </tr>
+        
+            <tr>
+                <td>EED402</td>
+                <td>PROJECT PHASE II</td>
+                <td>9.22680412371</td>
+            </tr>
+        
+            <tr>
+                <td>MMD402</td>
+                <td>PROJECT PHASE II</td>
+                <td>9.21739130435</td>
+            </tr>
+        
+            <tr>
+                <td>CMP365</td>
+                <td>FLUID MECHANICS MECHANICAL OPERATION II</td>
+                <td>9.21568627451</td>
+            </tr>
+        
+            <tr>
+                <td>MMP472</td>
+                <td>ENVIRONMENTAL DEGRADATION LAB</td>
+                <td>9.15942028986</td>
+            </tr>
+        
+            <tr>
+                <td>MED402</td>
+                <td>PROJECT PHASE II</td>
+                <td>9.14285714286</td>
+            </tr>
+        
         </table>
-    {% endfor %}
+    
+    <h3>Worst CGs</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        
+            <tr>
+                <td>CSL403</td>
+                <td>DATABASE MANAGEMENT SYSTEMS</td>
+                <td>5.26923076923</td>
+            </tr>
+        
+            <tr>
+                <td>ARP425</td>
+                <td>LANDSCAPE ARCHITECTURE STUDIO</td>
+                <td>5.4</td>
+            </tr>
+        
+            <tr>
+                <td>EEL201</td>
+                <td>NETWORK THEORY</td>
+                <td>5.55859375</td>
+            </tr>
+        
+            <tr>
+                <td>MAL205</td>
+                <td>NUMERICAL METHODS AND PROBABILITY THEORY</td>
+                <td>5.58109559613</td>
+            </tr>
+        
+            <tr>
+                <td>CSL307</td>
+                <td>THEORY OF COMPUTATION</td>
+                <td>5.68131868132</td>
+            </tr>
+        
+            <tr>
+                <td>AML281</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>5.7268907563</td>
+            </tr>
+        
+            <tr>
+                <td>CSL402</td>
+                <td>ANALYSIS OF ALGORITHMS</td>
+                <td>5.72839506173</td>
+            </tr>
+        
+            <tr>
+                <td>CSL411</td>
+                <td>SOFTWARE PROJECT MANAGEMENT</td>
+                <td>5.76543209877</td>
+            </tr>
+        
+            <tr>
+                <td>CSL407</td>
+                <td>DATA MINING AND DATA WEARHOUSING</td>
+                <td>5.81944444444</td>
+            </tr>
+        
+            <tr>
+                <td>AML482</td>
+                <td>CONCRETE STRUCTURES</td>
+                <td>5.82389937107</td>
+            </tr>
+        
+            <tr>
+                <td>EEL309</td>
+                <td>POWER ELECTRONICS</td>
+                <td>5.83974358974</td>
+            </tr>
+        
+            <tr>
+                <td>CSL202</td>
+                <td>DISCRETE MATHS AND GRAPH THEORY</td>
+                <td>5.84046692607</td>
+            </tr>
+        
+            <tr>
+                <td>CSL412</td>
+                <td>ARTIFICIAL INTELLIGENCE</td>
+                <td>5.93055555556</td>
+            </tr>
+        
+            <tr>
+                <td>CML621</td>
+                <td>NANO TECHNOLOGY</td>
+                <td>5.94117647059</td>
+            </tr>
+        
+            <tr>
+                <td>HUL179</td>
+                <td>COMMUNICATION SKILLS</td>
+                <td>5.95767195767</td>
+            </tr>
+        
+            <tr>
+                <td>PHL208</td>
+                <td>PHYSICS OF SEMICONDUCTOR DEVICES</td>
+                <td>6.0</td>
+            </tr>
+        
+            <tr>
+                <td>HUL301</td>
+                <td>TECHNICAL COMMUNICATION</td>
+                <td>6.02083333333</td>
+            </tr>
+        
+            <tr>
+                <td>CSL313</td>
+                <td>COMPUTER NETWORKS</td>
+                <td>6.05555555556</td>
+            </tr>
+        
+            <tr>
+                <td>CEL413</td>
+                <td>PRESTRESSED CONCRETE STRUCTURES</td>
+                <td>6.06849315068</td>
+            </tr>
+        
+            <tr>
+                <td>MEL302</td>
+                <td>HEAT TRANSFER I</td>
+                <td>6.07142857143</td>
+            </tr>
+        
+        </table>
+    
+    <h3>Most Ws</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        
+            <tr>
+                <td>PEB151</td>
+                <td>SPORTS</td>
+                <td>144</td>
+            </tr>
+        
+            <tr>
+                <td>AML151</td>
+                <td>ENGINEERING MECHANICS</td>
+                <td>132</td>
+            </tr>
+        
+            <tr>
+                <td>MAL102</td>
+                <td>MATHEMATICS II</td>
+                <td>97</td>
+            </tr>
+        
+            <tr>
+                <td>PHL101</td>
+                <td>PHYSICS I</td>
+                <td>85</td>
+            </tr>
+        
+            <tr>
+                <td>PHP101</td>
+                <td>PHYSICS LAB</td>
+                <td>82</td>
+            </tr>
+        
+            <tr>
+                <td>MEC101</td>
+                <td>ENGINEERING DRAWING</td>
+                <td>76</td>
+            </tr>
+        
+            <tr>
+                <td>MAL101</td>
+                <td>MATHEMATICS I</td>
+                <td>63</td>
+            </tr>
+        
+            <tr>
+                <td>EEP101</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>57</td>
+            </tr>
+        
+            <tr>
+                <td>EEL101</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>46</td>
+            </tr>
+        
+            <tr>
+                <td>AMP151</td>
+                <td>ENGINEERING MECHANICS LAB</td>
+                <td>43</td>
+            </tr>
+        
+            <tr>
+                <td>AML281</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>30</td>
+            </tr>
+        
+            <tr>
+                <td>HUL101</td>
+                <td>COMMUNICATION SKILLS</td>
+                <td>30</td>
+            </tr>
+        
+            <tr>
+                <td>CHL101</td>
+                <td>CHEMISTRY</td>
+                <td>29</td>
+            </tr>
+        
+            <tr>
+                <td>CHP101</td>
+                <td>APPLIED CHEMISTRY</td>
+                <td>27</td>
+            </tr>
+        
+            <tr>
+                <td>AML262</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>24</td>
+            </tr>
+        
+            <tr>
+                <td>MMC205</td>
+                <td>TESTING OF MATERIALS</td>
+                <td>21</td>
+            </tr>
+        
+            <tr>
+                <td>MMC203</td>
+                <td>ENGINEERING PHYSICAL METALLURGY</td>
+                <td>21</td>
+            </tr>
+        
+            <tr>
+                <td>MEP102</td>
+                <td>WORKSHOP</td>
+                <td>18</td>
+            </tr>
+        
+            <tr>
+                <td>AML363</td>
+                <td>DESIGN OF STEEL STRUCTURES</td>
+                <td>16</td>
+            </tr>
+        
+            <tr>
+                <td>CEL414</td>
+                <td>WATER DISTRIBUTION SYSTEMS</td>
+                <td>16</td>
+            </tr>
+        
+        </table>
+    
+    <h3>Most FFs</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        
+            <tr>
+                <td>MAL102</td>
+                <td>MATHEMATICS II</td>
+                <td>1961</td>
+            </tr>
+        
+            <tr>
+                <td>AML151</td>
+                <td>ENGINEERING MECHANICS</td>
+                <td>1481</td>
+            </tr>
+        
+            <tr>
+                <td>PHL101</td>
+                <td>PHYSICS I</td>
+                <td>1292</td>
+            </tr>
+        
+            <tr>
+                <td>EEL101</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>1215</td>
+            </tr>
+        
+            <tr>
+                <td>MAL101</td>
+                <td>MATHEMATICS I</td>
+                <td>1169</td>
+            </tr>
+        
+            <tr>
+                <td>MAL205</td>
+                <td>NUMERICAL METHODS AND PROBABILITY THEORY</td>
+                <td>820</td>
+            </tr>
+        
+            <tr>
+                <td>MAL201</td>
+                <td>DIFFERENTIAL EQUATIONS</td>
+                <td>761</td>
+            </tr>
+        
+            <tr>
+                <td>CSL101</td>
+                <td>COMPUTER PROGRAMMING</td>
+                <td>695</td>
+            </tr>
+        
+            <tr>
+                <td>CHL101</td>
+                <td>CHEMISTRY</td>
+                <td>503</td>
+            </tr>
+        
+            <tr>
+                <td>MEC101</td>
+                <td>ENGINEERING DRAWING</td>
+                <td>428</td>
+            </tr>
+        
+            <tr>
+                <td>CSL202</td>
+                <td>DISCRETE MATHS AND GRAPH THEORY</td>
+                <td>266</td>
+            </tr>
+        
+            <tr>
+                <td>EEL201</td>
+                <td>NETWORK THEORY</td>
+                <td>229</td>
+            </tr>
+        
+            <tr>
+                <td>AML281</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>225</td>
+            </tr>
+        
+            <tr>
+                <td>MEL203</td>
+                <td>ENGINEERING THERMODYNAMICS</td>
+                <td>197</td>
+            </tr>
+        
+            <tr>
+                <td>ECL306</td>
+                <td>MICROPROCESSORS INTERFACING</td>
+                <td>193</td>
+            </tr>
+        
+            <tr>
+                <td>EEL202</td>
+                <td>SIGNALS AND SYSTEMS</td>
+                <td>182</td>
+            </tr>
+        
+            <tr>
+                <td>PHP101</td>
+                <td>PHYSICS LAB</td>
+                <td>170</td>
+            </tr>
+        
+            <tr>
+                <td>EEL151</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>163</td>
+            </tr>
+        
+            <tr>
+                <td>HUL101</td>
+                <td>COMMUNICATION SKILLS</td>
+                <td>158</td>
+            </tr>
+        
+            <tr>
+                <td>CSL302</td>
+                <td>COMPUTER ORGANIZATION</td>
+                <td>151</td>
+            </tr>
+        
+        </table>
+    
+    <h3>Most W %</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        
+            <tr>
+                <td>CEL414</td>
+                <td>WATER DISTRIBUTION SYSTEMS</td>
+                <td>13.7931034483</td>
+            </tr>
+        
+            <tr>
+                <td>MML476</td>
+                <td>PROCESS OPTIMISATION</td>
+                <td>9.375</td>
+            </tr>
+        
+            <tr>
+                <td>MMC203</td>
+                <td>ENGINEERING PHYSICAL METALLURGY</td>
+                <td>9.33333333333</td>
+            </tr>
+        
+            <tr>
+                <td>MMC205</td>
+                <td>TESTING OF MATERIALS</td>
+                <td>8.82352941176</td>
+            </tr>
+        
+            <tr>
+                <td>AML262</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>5.78313253012</td>
+            </tr>
+        
+            <tr>
+                <td>CEL401</td>
+                <td>IRRIGATION ENGINEERING</td>
+                <td>5.69105691057</td>
+            </tr>
+        
+            <tr>
+                <td>AML363</td>
+                <td>DESIGN OF STEEL STRUCTURES</td>
+                <td>5.67375886525</td>
+            </tr>
+        
+            <tr>
+                <td>AML281</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>5.67107750473</td>
+            </tr>
+        
+            <tr>
+                <td>MML382</td>
+                <td>SOLIDIFICATION PROCESSING AFT</td>
+                <td>5.35714285714</td>
+            </tr>
+        
+            <tr>
+                <td>EEL404</td>
+                <td>SAMPLED DATA AND DIGITAL CONTROL</td>
+                <td>4.3795620438</td>
+            </tr>
+        
+            <tr>
+                <td>CEL306</td>
+                <td>SURVEYING II</td>
+                <td>4.35967302452</td>
+            </tr>
+        
+            <tr>
+                <td>MEL432</td>
+                <td>COMPUTER GRAPHICS AND SOLID MODELING</td>
+                <td>4.34782608696</td>
+            </tr>
+        
+            <tr>
+                <td>MMP382</td>
+                <td>SOLIDIFICATION PROCESSING AFT</td>
+                <td>4.30107526882</td>
+            </tr>
+        
+            <tr>
+                <td>MMP475</td>
+                <td>JOINING OF MATERIALS</td>
+                <td>4.02684563758</td>
+            </tr>
+        
+            <tr>
+                <td>MML385</td>
+                <td>HYDRO ELECTRO METALLURGY</td>
+                <td>3.92156862745</td>
+            </tr>
+        
+            <tr>
+                <td>MNL291</td>
+                <td>MECHANICAL ENGINEERING</td>
+                <td>3.8961038961</td>
+            </tr>
+        
+            <tr>
+                <td>CEL402</td>
+                <td>ESTIMATING COSTING</td>
+                <td>3.89105058366</td>
+            </tr>
+        
+            <tr>
+                <td>EEL311</td>
+                <td>CONTROL SYSTEM I</td>
+                <td>3.75</td>
+            </tr>
+        
+            <tr>
+                <td>MML475</td>
+                <td>JOINING OF MATERIALS</td>
+                <td>3.7037037037</td>
+            </tr>
+        
+            <tr>
+                <td>MML201</td>
+                <td>INTRODUCTION TO MATERIALS SCIENCE AND ENGINEERING</td>
+                <td>3.6303630363</td>
+            </tr>
+        
+        </table>
+    
+    <h3>Most FF %</h3>
+        <table>
+        <tr><th>Serial</th><th>Course Name</th><th>% / No.s</th></tr>
+        
+            <tr>
+                <td>MAL404</td>
+                <td>PROBABILITY STATISTICS</td>
+                <td>51.3043478261</td>
+            </tr>
+        
+            <tr>
+                <td>CSL202</td>
+                <td>DISCRETE MATHS AND GRAPH THEORY</td>
+                <td>46.6666666667</td>
+            </tr>
+        
+            <tr>
+                <td>MAL205</td>
+                <td>NUMERICAL METHODS AND PROBABILITY THEORY</td>
+                <td>44.4685466377</td>
+            </tr>
+        
+            <tr>
+                <td>EEL201</td>
+                <td>NETWORK THEORY</td>
+                <td>44.2084942085</td>
+            </tr>
+        
+            <tr>
+                <td>AML281</td>
+                <td>STRENGTH OF MATERIALS</td>
+                <td>42.5330812854</td>
+            </tr>
+        
+            <tr>
+                <td>MAL102</td>
+                <td>MATHEMATICS II</td>
+                <td>41.7056571672</td>
+            </tr>
+        
+            <tr>
+                <td>MAL201</td>
+                <td>DIFFERENTIAL EQUATIONS</td>
+                <td>41.6074357572</td>
+            </tr>
+        
+            <tr>
+                <td>CSL302</td>
+                <td>COMPUTER ORGANIZATION</td>
+                <td>41.0326086957</td>
+            </tr>
+        
+            <tr>
+                <td>ECL306</td>
+                <td>MICROPROCESSORS INTERFACING</td>
+                <td>39.6303901437</td>
+            </tr>
+        
+            <tr>
+                <td>AML169</td>
+                <td>ENGINEERING MECHANICS</td>
+                <td>39.2572944297</td>
+            </tr>
+        
+            <tr>
+                <td>EEL202</td>
+                <td>SIGNALS AND SYSTEMS</td>
+                <td>39.0557939914</td>
+            </tr>
+        
+            <tr>
+                <td>MEL203</td>
+                <td>ENGINEERING THERMODYNAMICS</td>
+                <td>38.7033398821</td>
+            </tr>
+        
+            <tr>
+                <td>CSL213</td>
+                <td>DATA STRUCTURE AND PROGRAM DESIGN - I</td>
+                <td>38.1215469613</td>
+            </tr>
+        
+            <tr>
+                <td>MEL309</td>
+                <td>MACHINE DESIGN II</td>
+                <td>37.5816993464</td>
+            </tr>
+        
+            <tr>
+                <td>EEL151</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>37.299771167</td>
+            </tr>
+        
+            <tr>
+                <td>AML151</td>
+                <td>ENGINEERING MECHANICS</td>
+                <td>37.1457236017</td>
+            </tr>
+        
+            <tr>
+                <td>EEL403</td>
+                <td>SWITCHGEAR AND PROTECTION</td>
+                <td>36.3636363636</td>
+            </tr>
+        
+            <tr>
+                <td>CSL211</td>
+                <td>INTRODUCTION TO OO METHODOLOGY</td>
+                <td>36.231884058</td>
+            </tr>
+        
+            <tr>
+                <td>MEL445</td>
+                <td>AUTOMATION IN PRODUCTION</td>
+                <td>35.8490566038</td>
+            </tr>
+        
+            <tr>
+                <td>EEL101</td>
+                <td>ELECTRICAL ENGINEERING</td>
+                <td>35.2992446252</td>
+            </tr>
+        
+        </table>
+    
     <br/><br/>
 </body>

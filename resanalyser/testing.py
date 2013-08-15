@@ -63,35 +63,35 @@ spit = open(os.path.join(os.getcwd(),"course_stats.txt"),'w')
 json.dump(course_stats,spit)
 spit.close()"""
 
-### Following generates performance ranks (average CGs)
-##insti_lvl = {}
-##batch_lvl = {}
-##for each in rank_data:
-##    if isinstance(rank_data[each],list):
-##        cur = rank_data[each]
-##        batch_lvl[each]= sum(cur)/len(cur)
-##    elif isinstance(rank_data[each],dict):
-##        for batch in rank_data[each]:
-##            cur = rank_data[each][batch]
-##            batch_lvl[' '.join([each, '('+str(batch)+')'])] = sum(cur)/len(cur)
-##            if batch == "All":
-##                insti_lvl[each] = sum(cur)/len(cur)
-##print("""
-##         *****INSTI LEVEL Average CGs*****
-##         """)
-##spit = open(os.path.join(os.getcwd(),"cg_avgs.txt"),'w')
-##meta_data = [[],[]]
-##for index, branch in enumerate(sorted(insti_lvl,key=lambda x: insti_lvl[x],reverse=True)):
-##    print('{0:2}. '.format(index+1), "{0:40}".format(branch), insti_lvl[branch])
-##    meta_data[0].append([index+1, branch, insti_lvl[branch]])
-##print("""
-##         *****BATCH LEVEL Average CGs*****
-##         """)
-##for index, batch in enumerate(sorted(batch_lvl,key=lambda x: batch_lvl[x],reverse=True)):
-##    print('{0:2}. '.format(index+1), "{0:50}".format(batch), batch_lvl[batch])
-##    meta_data[1].append([index+1, batch, batch_lvl[batch]])
-##json.dump(meta_data,spit)
-##spit.close()
+# Following generates performance ranks (average CGs)
+insti_lvl = {}
+batch_lvl = {}
+for each in rank_data:
+    if isinstance(rank_data[each],list):
+        cur = rank_data[each]
+        batch_lvl[each]= sum(cur)/len(cur)
+    elif isinstance(rank_data[each],dict):
+        for batch in rank_data[each]:
+            cur = rank_data[each][batch]
+            batch_lvl[' '.join([each, '('+str(batch)+')'])] = sum(cur)/len(cur)
+            if batch == "All":
+                insti_lvl[each] = sum(cur)/len(cur)
+print("""
+         *****INSTI LEVEL Average CGs*****
+         """)
+spit = open(os.path.join(os.getcwd(),"cg_avgs.txt"),'w')
+meta_data = [[],[]]
+for index, branch in enumerate(sorted(insti_lvl,key=lambda x: insti_lvl[x],reverse=True)):
+    print('{0:2}. '.format(index+1), "{0:40}".format(branch), insti_lvl[branch])
+    meta_data[0].append([index+1, branch, insti_lvl[branch]])
+print("""
+         *****BATCH LEVEL Average CGs*****
+         """)
+for index, batch in enumerate(sorted(batch_lvl,key=lambda x: batch_lvl[x],reverse=True)):
+    print('{0:2}. '.format(index+1), "{0:50}".format(batch), batch_lvl[batch])
+    meta_data[1].append([index+1, batch, batch_lvl[batch]])
+json.dump(meta_data,spit)
+spit.close()
 
 ## Following code generates rankwise list portable to excel. Edit branch, batch.
 """cur_marklist = []

@@ -23,8 +23,6 @@ terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
 data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
 course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
 rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
-course_stats_file = open(os.path.join(os.getcwd(),'course_stats.txt'),'r')
-cg_avgs_file = open(os.path.join(os.getcwd(),'cg_avgs.txt'),'r')
 cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
 
 # Analysis shit! :-P  (Apparently I can't separate the globals or whatever & so have to include the whole ResAnalyser.Analyser class)-->
@@ -238,8 +236,8 @@ def gather_data(): # Load stuff from the text files
     """Don't have much faith on GAE to keep so much data in memory ready at all times.
        So, just making sure that every time I need certain data, it is ready to be accessed!
     """
-    global database, course_data, rank_data, cg_distribution, cg_avgs, course_stats
-    global data_file, course_file, rank_file, cg_distribution_file, cg_avgs_file, course_stats_file
+    global database, course_data, rank_data, cg_distribution
+    global data_file, course_file, rank_file, cg_distribution_file
     
     if course_file.closed:
         course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
@@ -249,14 +247,6 @@ def gather_data(): # Load stuff from the text files
         rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
     if cg_distribution_file.closed:
         cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
-    if cg_avgs_file.closed:
-        cg_avgs_file = open(os.path.join(os.getcwd(),'cg_avgs.txt'),'r')
-    if course_stats_file.closed:
-        course_stats_file = open(os.path.join(os.getcwd(),'course_stats.txt'),'r')
-    course_stats = json.load(course_stats_file)
-    course_stats_file.close()
-    cg_avgs = json.load(cg_avgs_file)
-    cg_avgs_file.close()
     cg_distribution = json.load(cg_distribution_file)
     cg_distribution_file.close()
     course_data = json.load(course_file)
@@ -435,34 +425,25 @@ class MarklistHandler(webapp2.RequestHandler):
 
 class PerformanceHandler(webapp2.RequestHandler):
     def get(self):
-        path = "performance.html"
         template_values = {}
         q = self.request.get('q',False)
-        gather_data()
         if q == 'batchwise':
-            template_values['batchwise'] = True
             to_render = memcache.get('_perf_batchwise')
             if not to_render:
-                template_values['batches'] = cg_avgs[1]
-                to_render = template.render(path, template_values)
+                to_render = template.render("perfbatchwise.html", {})
                 memcache.set('_perf_batchwise', to_render)
         else:
-            template_values['batchwise'] = False
             to_render = memcache.get('_perf_complete')
             if not to_render:
-                to_render = template.render(path, template_values)
+                to_render = template.render("performance.html", {})
                 memcache.set('_perf_complete', to_render)
         self.response.out.write(to_render)
 
 class CoursePerfHandler(webapp2.RequestHandler):
     def get(self):
-        path = "course_perf.html"
-        template_values = {}
         to_render = memcache.get('_perf_course')
         if not to_render:
-            gather_data()
-            template_values['course_stats'] = course_stats
-            to_render = template.render(path, template_values)
+            to_render = template.render("course_perf.html", {})
             memcache.set('_perf_course',to_render)
         self.response.out.write(to_render)
 

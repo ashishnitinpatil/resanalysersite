@@ -11,22 +11,9 @@
 </head>
 <body>
     <h2>Performance</h2>
-    {% if batchwise %}
-    <h3>BATCH LEVEL Performance Comparisons (Average CGs)</h3>
-    <a target="_blank" href="/performance">Click here for Branch-Wise Performance</a><br/><br/>
-        <table>
-        <tr><th>Rank</th><th>Batch</th><th>Batch Avg.CG</th></tr>
-        {% for batch_data in batches %}
-            <tr>
-                <td>{{ batch_data.0 }}</td>
-                <td>{{ batch_data.1 }}</td>
-                <td>{{ batch_data.2 }}</td>
-            </tr>
-        {% endfor %}
-        </table><br/><br/>
-    {% else %}
+    
     <h3>Department Performances (including First Years & Super Seniors)</h3>
-    <a target="_blank" href="/performance?q=batchwise">Click here for Batch-Wise Performance</a><br/><br/>
+    <a href="/performance?q=batchwise">Click here for Batch-Wise Performance</a><br/><br/>
         <table>
             <tr><th>Rank</th><th>Branch</th><th>Branch Avg.CG</th></tr>
             <tr><td>1.</td><td>ARCHITECTURE</td><td>7.344103448275865</td></tr>
@@ -39,5 +26,5 @@
             <tr><td>8.</td><td>METALLURGICAL AND MATERIALS ENGINEERING</td><td>6.674281249999997</td></tr>
             <tr><td>9.</td><td>MINING ENGINEERING</td><td>6.500860215053762</td></tr>
         </table>
-    {% endif %}
+    
 </body>
