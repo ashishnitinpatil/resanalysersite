@@ -20,10 +20,10 @@ rank_data = {} # Mark-lists for all departments, batches, etc.
 cg_distribution = {} # Stores cg statistics (gradified)
 grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':0,'FF':0,'SS':10}
 terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
-data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
-course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
-rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
-cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
+from database import database
+from course_data import course_data
+from rank_data import rank_data
+from cg_distribution import cg_distribution
 
 # Analysis shit! :-P  (Apparently I can't separate the globals or whatever & so have to include the whole ResAnalyser.Analyser class)-->
 
@@ -232,34 +232,8 @@ class Analyser:
 
     # End of Analyser
 
-def gather_data(): # Load stuff from the text files
-    """Don't have much faith on GAE to keep so much data in memory ready at all times.
-       So, just making sure that every time I need certain data, it is ready to be accessed!
-    """
-    global database, course_data, rank_data, cg_distribution
-    global data_file, course_file, rank_file, cg_distribution_file
-    
-    if course_file.closed:
-        course_file = open(os.path.join(os.getcwd(),'course_data.txt'),'r')
-    if data_file.closed:
-        data_file = open(os.path.join(os.getcwd(),'database.txt'),'r')
-    if rank_file.closed:
-        rank_file = open(os.path.join(os.getcwd(),'rank_data.txt'),'r')
-    if cg_distribution_file.closed:
-        cg_distribution_file = open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r')
-    cg_distribution = json.load(cg_distribution_file)
-    cg_distribution_file.close()
-    course_data = json.load(course_file)
-    course_file.close()
-    database = json.load(data_file)
-    data_file.close()
-    rank_data = json.load(rank_file)
-    rank_file.close()
 
 #All the necessary funcs go here...
-
-gather_data() # Initialize!
-#All the handlers must be below the funcs...
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -270,7 +244,6 @@ class CourseHandler(webapp2.RequestHandler):
         template_values={}
         serial = self.request.get('serial')
         template_values['serial'] = serial
-        gather_data()
         if serial in (None,False,"","all"):
             path = "course_all.html"
             #data = sorted(course_data.keys())
@@ -314,7 +287,6 @@ class StudentHandler(webapp2.RequestHandler):
         template_values['roll'] = roll
         data = None
         if roll:
-            gather_data()
             if roll in database:
                 data = database[roll]
                 graph = self.request.get('graph')
@@ -361,7 +333,6 @@ class StatsHandler(webapp2.RequestHandler):
         template_values['present'] = True
         batch = self.request.get('batch','')
         branch = self.request.get('branch','')
-        gather_data()
         if not branch and not batch: # Display all statistics links
             data = memcache.get('_stats_data')
             if not data:
@@ -411,7 +382,6 @@ class MarklistHandler(webapp2.RequestHandler):
     def post(self):
         template_values={}
         path = "marklist.html"
-        gather_data()
         serial = self.request.get('serial')
 		#terms = self.request.get('terms')
         get_data = Analyser()
@@ -489,7 +459,6 @@ class TestHandler(webapp2.RequestHandler):
 class Test2Handler(webapp2.RequestHandler):
     def get(self):
         path = "testing2.html"
-        check_for_data()
         data = database
         template_values={'data':data}
         self.response.out.write(template.render(path, template_values))

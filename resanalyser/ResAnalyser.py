@@ -185,7 +185,7 @@ def PDF_Parser(file):
             if gpa <= 10.0:
                 return gpa
         except:
-            return False
+            return 0
 
     def getdata(line):
         start = line.find("Td (") + 4

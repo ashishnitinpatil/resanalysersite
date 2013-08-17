@@ -149,4 +149,6 @@ civil.close()"""
 ##        meta_data[1].append([index+1, batch + batches, depart_grad[batch][batches]])
 ##json.dump(meta_data,spit)
 fgh = json.load(open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r'))
-print(fgh['TrueFalse']['All'])
+#print(fgh['TrueFalse']['All'])
+from database import database
+print()
