@@ -348,7 +348,7 @@ class StatsHandler(webapp2.RequestHandler):
         else:                        # Display the relevant statistics
             cumulative = self.request.get('cumulative',False)
             percent = self.request.get('percent',True)
-            
+
             if str(percent) == '0':
                 percent = False
             else:
@@ -440,7 +440,7 @@ class AboutHandler(webapp2.RequestHandler):
             to_render = template.render("about.html", {})
             memcache.set('_static_about',to_render)
         self.response.out.write(to_render)
-        
+
 class ChangelogHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_static_changelog')
@@ -475,10 +475,19 @@ def handle_500(request, response, exception):
 
 
 #Alas, the main app (appengine def)...
-app = webapp2.WSGIApplication([('/',MainHandler),('/courses',CourseHandler),('/student',StudentHandler),('/marklist',MarklistHandler),
-                               ('/tos',TOSHandler),('/about',AboutHandler),('/privacy',PrivacyHandler),('/testing',TestHandler),
-                               ('/changelog',ChangelogHandler),('/stats',StatsHandler),('/performance',PerformanceHandler),
-                               ('/courseperf',CoursePerfHandler),('/testing2',Test2Handler)],
+app = webapp2.WSGIApplication([('/',MainHandler),
+                               ('/courses',CourseHandler),
+                               ('/student',StudentHandler),
+                               ('/marklist',MarklistHandler),
+                               ('/tos',TOSHandler),
+                               ('/about',AboutHandler),
+                               ('/privacy',PrivacyHandler),
+                               ('/testing',TestHandler),
+                               ('/changelog',ChangelogHandler),
+                               ('/stats',StatsHandler),
+                               ('/performance',PerformanceHandler),
+                               ('/courseperf',CoursePerfHandler),
+                               ('/testing2',Test2Handler)],
                                debug=True)
 app.error_handlers[404] = handle_404
 app.error_handlers[500] = handle_500

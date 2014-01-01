@@ -1,41 +1,46 @@
 #!/usr/bin/env python
 # Licensed under Creative Commons Attribution 3.0 Unported License;
 
-import os, re, sys, time, logging
+import os
+import re
+import sys
+import time
+import logging
 import json
 
-from ResAnalyser import Analyser
+from ResAnalyser import *
 
 # Begin ResAnalyser --->
 
-latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM']
-database = {} # For individual student data storing
-course_data = {} # For record keeping of every course for every sem
-grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':'W','FF':'FF','SS':'SS'}
-terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
+database = dict() # For individual student data storing
+course_data = dict() # For record keeping of every course for every sem
 
 def gather_data(): # Load stuff from the txt files
-	global database, course_data
-	database = json.load(open(os.path.join(os.getcwd(),'database.txt'),'r'))
-	course_data = json.load(open(os.path.join(os.getcwd(),'course_data.txt'),'r'))
+    global database, course_data
+    with open(os.path.join(os.getcwd(),'database.txt'),'r') as data_file:
+        database = json.load(data_file)
+    with open(os.path.join(os.getcwd(),'course_data.txt'),'r') as course_file:
+        course_data = json.load(course_file)
 
 ##dt = open(os.path.join(os.getcwd(),'database.txt'),'r')
 ##database = json.load(dt)
 ##course_data = json.load(open(os.path.join(os.getcwd(),'course_data.txt'),'r'))
 ##input("AS")
 gather_data()
-department_data = json.load(open(os.path.join(os.getcwd(),'department_data.txt'),'r'))
-rank_data = json.load(open(os.path.join(os.getcwd(),'rank_data.txt'),'r'))
+with open(os.path.join(os.getcwd(),'department_data.txt'),'r') as department_file:
+    department_data = json.load(department_file)
+with open(os.path.join(os.getcwd(),'rank_data.txt'),'r') as rank_file:
+    rank_data = json.load(rank_file)
 ##print(len(department_data["CIVIL ENGINEERING"]["BT11"]))
 ##print(department_data["CIVIL ENGINEERING"]["BT11"])
 
 ##Following code generates course performances (best & worse cgs, Ws, FFs)
-"""course_performance = {}
-course_stats = {}
+"""course_performance = dict()
+course_stats = dict()
 
 for course in course_data:
-    course_performance[course] = {}
-    course_marklist = []
+    course_performance[course] = dict()
+    course_marklist = list()
     for term in course_data[course]['Records']:
         term_marklist = list(course_data[course]['Records'][term].values())
         course_performance[course][term] = Analyser().Mean_Deviation(term_marklist)
@@ -64,8 +69,8 @@ json.dump(course_stats,spit)
 spit.close()"""
 
 ### Following generates performance ranks (average CGs)
-##insti_lvl = {}
-##batch_lvl = {}
+##insti_lvl = dict()
+##batch_lvl = dict()
 ##for each in rank_data:
 ##    if isinstance(rank_data[each],list):
 ##        cur = rank_data[each]
@@ -80,7 +85,7 @@ spit.close()"""
 ##         *****INSTI LEVEL Average CGs*****
 ##         """)
 ##spit = open(os.path.join(os.getcwd(),"cg_avgs.txt"),'w')
-##meta_data = [[],[]]
+##meta_data = [list(),list()]
 ##for index, branch in enumerate(sorted(insti_lvl,key=lambda x: insti_lvl[x],reverse=True)):
 ##    print('{0:2}. '.format(index+1), "{0:40}".format(branch), insti_lvl[branch])
 ##    meta_data[0].append([index+1, branch, insti_lvl[branch]])
@@ -94,7 +99,7 @@ spit.close()"""
 ##spit.close()
 
 ## Following code generates rankwise list portable to excel. Edit branch, batch.
-"""cur_marklist = []
+"""cur_marklist = list()
 for roll in database:
     if database[roll]['Branch'] == 'MECHANICAL ENGINEERING':
         if database[roll]['Batch'] == 'BT10':
@@ -116,11 +121,11 @@ civil.close()"""
 
 ## Following code is for getting gradified stats (batch-wise, branch-wise, etc)
 """
-big_data = {}
+big_data = dict()
 for percent, cumulative in ((False,False),(True,False),(False,True),(True,True)):
-    insti_grad = {}
-    depart_grad = {}
-    batch_grad = {}
+    insti_grad = dict()
+    depart_grad = dict()
+    batch_grad = dict()
     for each in rank_data:
         if isinstance(rank_data[each],list):
             batch_grad[each]= Analyser().Gradify(rank_data[each],percent, cumulative)
@@ -130,16 +135,16 @@ for percent, cumulative in ((False,False),(True,False),(False,True),(True,True))
                 try:
                     depart_grad[each][batch] = Analyser().Gradify(rank_data[each][batch],percent, cumulative)
                 except KeyError:
-                    depart_grad[each] = {}
+                    depart_grad[each] = dict()
                     depart_grad[each][batch] = Analyser().Gradify(rank_data[each][batch],percent, cumulative)
                 if batch == "All":
                     insti_grad[each] = Analyser().Gradify(rank_data[each][batch],percent, cumulative)
     spit = open(os.path.join(os.getcwd(),"cg_distribution.txt"),'w')
-    meta_data = {}
+    meta_data = dict()
     print("\n\nInstitute Level Grading\n")
     for index, branch in enumerate(insti_grad):
         print('{0:2}. '.format(index+1), "{0:40}".format(branch), insti_grad[branch])
-        meta_data[branch] = {}
+        meta_data[branch] = dict()
         meta_data[branch]['All'] = insti_grad[branch]
     print("\n\nBatch-wise Grading\n")
     for index, batch in enumerate(batch_grad):
