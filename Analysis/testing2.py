@@ -148,7 +148,11 @@ civil.close()"""
 ##        print('{0:2}. '.format(index+1), "{0:40}".format(batches), depart_grad[batch][batches])
 ##        meta_data[1].append([index+1, batch + batches, depart_grad[batch][batches]])
 ##json.dump(meta_data,spit)
-fgh = json.load(open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r'))
+#fgh = json.load(open(os.path.join(os.getcwd(),'cg_distribution.txt'),'r'))
 #print(fgh['TrueFalse']['All'])
-from database import database
-print()
+
+# Get the batch toppers for each branch.
+##for dept in department_data:
+##    for batch in department_data[dept]:
+##        print dept, batch, database[max(department_data[dept][batch],
+##                                    key=lambda x: department_data[dept][batch][x])]['Name']

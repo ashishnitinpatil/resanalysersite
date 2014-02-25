@@ -49,13 +49,8 @@ for batch in batches:
 with open(os.path.join(os.getcwd(),'rank_data.txt'),'w') as g4:
     g4.write(json.dumps(rank_data))
 
-print(len(rank_data["BT10"]))
-print(rank_data["BT10"].index(9.54))
 with open(os.path.join(os.getcwd(),'rank_data.txt'),'r') as rakk_file:
     rakk_data = json.load(rakk_file)
-
-print(len(rakk_data["CIVIL ENGINEERING"]["All"]))
-print(rakk_data["All"].index(9.54))
 
 with open(os.path.join(os.getcwd(),'database.txt'),'r') as data_file:
     database = json.load(data_file)

@@ -1,12 +1,12 @@
 ﻿#!/usr/bin/env python
 #-------------------------------------------------------------------------------
-# Name:        Result Analyser (Version 2.0)
+# Name:        Result Analyser (Version 3.0)
 #
 # Author:      Asis aka !mmorta!
 #
-# Created:     11/05/2013 (V1.0 - 29/11/2012)
+# Created:     03/02/2014 (V2.0 - 11/05/2013, V1.0 - 29/11/2012)
 #
-# Copyright:   (c) Asis 2013
+# Copyright:   (c) Ashish Patil 2014
 #
 # Licence:     Creative Commons Attribution-ShareAlike 3.0 Unported License.
 #-------------------------------------------------------------------------------
@@ -23,23 +23,33 @@ import datetime
 today = datetime.datetime.today()
 if today.month < 6:
     latest_term = "AUTUMN"
+    latest_normal_term = str(today.year-1) + " " + latest_term
+    latest_normal_term2 = str(today.year-1) + " " + "WINTER"
+    acad_year = "{}-{}".format(today.year-1, today.year)
+    latest_terms = [latest_normal_term, latest_normal_term + " RE-EXAM", latest_normal_term2]
 else:
     latest_term = "SPRING"
-latest_normal_term = str(today.year) + " " + latest_term
-latest_terms = [latest_normal_term, latest_normal_term + " RE-EXAM"]
-if today.month >= 6: # Add summer term
-    latest_terms.append(latest_normal_term + " TERM SUMMER")
+    acad_year = "{}-{}".format(today.year, today.year+1)
+    latest_normal_term = str(today.year) + " " + latest_term
+    latest_terms = [latest_normal_term, latest_normal_term + " RE-EXAM", today.year + " TERM SUMMER"]
+
 # Manual over-ride
-# latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM']
+# latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM', '2013 TERM SUMMER']
 
 # variables -->
 grades = {'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6,
           'SS': 10, 'CD': 5, 'DD': 4, 'FF': 0, 'W': 0}
 terms = ['SPRING', 'AUTUMN', 'RE-EXAM', 'SUMMER']
 
+
+database = dict() # For individual student data storing
+course_data = dict() # Records of every course for every sem
+department_data = dict() # Dept.-wise student records by cur_cg
+
+
 # The Main function --> (to give Command Line Interface (CLI) like feel)
 def main():
-    ''' Firstly, we take in the result files/addresses, check if they are good.
+    '''Firstly, we take in the result files/addresses, check if they are good.
     Then parse the files & later, analyse them'''
     global result_file, result_file_addresses
     result_file_addresses = list()
@@ -49,7 +59,7 @@ def main():
                                 os.path.join(os.getcwd(),'Result',res_file))
     # Welcome Screen
     print("\n\tResult Analyser by !mmorta!\
-           \n\tPython Library for analysing result (PDF Parser with Analyser)")
+           \n\tPython Library for analysing results")
     # Take in the address of the result file if no files in "Result" directory
     if not result_file_addresses:
         addr = input("\n\tEnter address for the result file (e.g. E:\civ.pdf)")
@@ -73,12 +83,15 @@ def main():
             sys.exit(1) # Bad exit
 
     # Write the data to files so we dont have to redo anything (if at all)
+    print("\n\tDumping all data into txt files...")
     with open(os.path.join(os.getcwd(),'database.txt'),'w') as g1:
         g1.write(json.dumps(database))
     with open(os.path.join(os.getcwd(),'course_data.txt'),'w') as g2:
         g2.write(json.dumps(course_data))
     with open(os.path.join(os.getcwd(),'department_data.txt'),'w') as g3:
         g3.write(json.dumps(department_data))
+    print("\tDumping finished...")
+    print("\n\tProgram terminated successfully.")
 
     # End of main()...
 
@@ -87,7 +100,7 @@ def main():
 # to understand the PDF_Parser function properly.
 
 # Nasty name issues...
-''' The PDF is doomed. Oops, that is VNIT I suppose! :-P
+'''The PDF is doomed. Oops, that is VNIT I suppose! :-P
 Anyways, the PDF data is very very crude & to make it look good & be so,
 I prettify things that are nasty. You can see below what it does.
 These dicts are there to replace stuff so that our database is intact & nice
@@ -221,25 +234,22 @@ duplication_issues = {
 
 class PDF_Parser:
 
-    def __init__(self, file=None, testing=False):
+    def __init__(self, res_file=None, testing=False):
         if not testing:
-            self.file = file
-            self.run()
+            self.file = res_file
             global database, course_data, department_data
-            database = dict() # For individual student data storing
-            course_data = dict() # Records of every course for every sem
-            department_data = dict() # Dept.-wise student records by cur_cg
+            self.run()
 
     def is_credit(self, char):
         try:
             no_credits = int(char)
             assert str(no_credits) == char # No room for floats
-            if no_credits == 0:
-                return 10 # For type_resolving purposes
-            elif no_credits < 9:
+            if no_credits < 9:
                 return no_credits
             else:
-                print("Bad data fed to is_credit() -", no_credits)
+                # print("Bad data fed to is_credit() -", no_credits)
+                # Some ancient courses had 10 & 12 credits!!! WTF!!
+                return False
         except:
             return False
 
@@ -257,7 +267,7 @@ class PDF_Parser:
         result = line[start:end]
         return result
 
-    def prettify(course): #Course names have nasty raw data & duplication issues
+    def prettify(self, course): #Course names have nasty raw data & duplication issues
         if course in general_names_issues:
             return general_names_issues[course]
         if course in duplication_issues:
@@ -288,7 +298,7 @@ class PDF_Parser:
 
     def get_stud_type(self, roll):
         # Classifying the student based on his Roll type...
-        if roll[:2] == 'BT':
+        if roll[:2] == 'BT' or roll[2:4] == 'BT':
             cur_stud_type = 'B. Tech.'
         elif roll[0] in 'LNRSTUVWXYZ':
             cur_stud_type = 'B. Tech.'
@@ -296,10 +306,10 @@ class PDF_Parser:
             cur_stud_type = 'B. Tech.'
         elif roll[:2] in {'BA', 'AR'}:
             cur_stud_type = 'B. Arch.'
-        elif roll[:2] == 'MT':
+        elif roll[:2] == 'MT' or roll[2:4] == 'MT':
             cur_stud_type = 'M. Tech.'
         else:
-            cur_stud_type = 'Don\'t Know'
+            cur_stud_type = "Don't Know"
             print("Student type is undefined for -", roll)
 ##        if cur_stud_type == 'B. Tech.':
 ##            if int(roll[2:4]) <= (2000 - datetime.datetime.today().year):
@@ -307,30 +317,25 @@ class PDF_Parser:
         return cur_stud_type
 
     def get_year(self, roll, stud_type=None):
-        cur_year = today.year - 2000
+        cur_year = today.year - 2000 #- 1
         if stud_type in {'B. Tech.', 'B. Arch.', 'M. Tech.'}:
             # pending corrections for roll type VNIT/U01
             if roll[:2] in {'BT', 'BA', 'MT'}:
-                stud_year = cur_year - roll[2:4]
-                if latest_normal_term[5] == 'W':
-                    stud_year += 1
+                stud_year = cur_year - int(roll[2:4])
+            elif roll[2:4] in {'BT', 'BA', 'MT'}:
+                stud_year = cur_year - int(roll[:2])
             else:
                 stud_year = 1 # first year
         return stud_year
 
     def get_batch(self, roll):
         if roll[0] in 'LNRSTUVWXYZ' or roll[:2] == 'AR':
-            if latest_terms[0][0] == "S":
-                batch = str(int(latest_terms[0][-4:])-1)
-            else:
-                batch = latest_terms[0][:4]
+            batch = acad_year[:4]
         else:
             batch = roll[:4]
         return batch
 
     def individual(self):
-        all_details = {'Branch': None, 'CGPA': 0,'Credits_Total': 0,
-                       'EGP_Total': 0, 'W': 0, 'FF': 0}
         cur_line = self.file.readline()
         cur_name = self.getdata(self.file.readline())
         if cur_name == "GRADE CARD":
@@ -341,135 +346,177 @@ class PDF_Parser:
         for i in range(5):
             self.file.readline()
         cur_branch = self.getdata(self.file.readline()).replace('&', 'AND')
-        cur_name = self.prettify_name(cur_name)
-        cur_batch = self.get_batch(cur_roll)
-        all_details['Name'] = cur_name
-        all_details['Roll'] = cur_roll
-        all_details['Stud Type'] = cur_stud_type
-        all_details['Branch'] = cur_branch
-        all_details['Batch'] = cur_batch
-        all_details['Records'] = dict()
+        cur_name   = self.prettify_name(cur_name)
+        cur_batch  = self.get_batch(cur_roll)
+        cur_year   = self.get_year(cur_roll, cur_stud_type)
+##        cur_sem    = 0
+        all_details = {'Name': cur_name,
+                       'Roll': cur_roll,
+                       'Stud Type': cur_stud_type,
+                       'Branch': cur_branch,
+                       'Batch': cur_batch,
+                       'Year': cur_year,
+##                       'Sem': cur_sem,
+                       'CGPA': 0,
+                       'Credits_Total': 0,
+                       'EGP_Total': 0,
+                       'W': 0,
+                       'FF': 0,
+                       'Records': dict(),
+                       'Courses': dict()
+        }
         if cur_roll in database:
             all_details = database[cur_roll]
         good_to_go = True
-        #if cur_stud_type in ('Super Senior','Dont Know'):
-        #    good_to_go = False
+        if cur_stud_type in {'Super Senior','Dont Know'}:
+            good_to_go = False
         while good_to_go:
             cur_data = self.getdata(cur_line)
-            if cur_data:
-                if cur_data.split()[0] in terms:
-                    cur_term = cur_data
-                    if cur_term[-1] == ' ':
-                        cur_term = cur_term[:-1]
-                    cur_term = cur_term.split()
-                    if 'AUTUMN'in cur_term:
-                        cur_term[cur_term.index('AUTUMN')] = 'WINTER'
-                    cur_term.reverse()
-                    cur_term = ' '.join(cur_term)
-                    all_details['Records'][cur_term] = {'CGPA': 0, 'SGPA': 0,
-                                                        'Courses': dict()}
-                    cur_block = list()
-                    while not cur_data == "Credit":
+            if cur_data and cur_data.split()[0] in terms:
+                cur_term = cur_data
+                if cur_term[-1] == ' ':
+                    cur_term = cur_term[:-1]
+                cur_term = cur_term.split()
+                if 'AUTUMN' in cur_term:
+                    cur_term[cur_term.index('AUTUMN')] = 'WINTER'
+                # Above allows 2012 SPRING to come before 2012 WINTER
+                # Reverse n join, so we can get correctly sortable terms
+                cur_term.reverse()
+                cur_term = ' '.join(cur_term)
+                all_details['Records'][cur_term] = {'CGPA': 0, 'SGPA': 0,
+                                                    'Courses': dict()}
+##                if len(cur_term.split()) <= 2:
+##                    cur_sem += 1
+##                    all_details['Sem'] = cur_sem
+                cur_block = list()
+                while not cur_data == "Credit":
+                    cur_line = self.file.readline()
+                    cur_data = self.getdata(cur_line)
+                    cur_block.append(cur_data)
+                    if cur_data in grades and self.is_credit(cur_block[-2]):
+                        cur_grade = grades[cur_data]
+                        cur_grade_raw = cur_data
                         cur_line = self.file.readline()
                         cur_data = self.getdata(cur_line)
                         cur_block.append(cur_data)
-                        if cur_data in grades and self.is_credit(cur_block[-2]):
-                            cur_grade = grades[cur_data]
-                            cur_grade_raw = cur_data
-                            cur_line = self.file.readline()
-                            cur_data = self.getdata(cur_line)
-                            cur_block.append(cur_data)
-                            course = cur_block[-4]
-                            if cur_block[-3][:2] == '\(':
-                                del cur_block[-3]
-                            no_credits = self.is_credit(cur_block[-3])
-                            if no_credits == 10:
-                                no_credits = 0
-                            serial = cur_block[-1]
-                            if course[0] == '\\':
-                                course = cur_block[-5]
-                                if cur_block[-4][:2] == '\(':
-                                    del cur_block[-4]
-                                    course_credits = cur_block[-3]
-                                    serial = cur_block[-1]
+                        course = cur_block[-4]
+                        if cur_block[-3][:2] == '\(':
+                            del cur_block[-3]
+                        no_credits = self.is_credit(cur_block[-3])
+                        serial = cur_block[-1]
+                        if course[0] == '\\':
+                            course = cur_block[-5]
+                            if cur_block[-4][:2] == '\(':
+                                del cur_block[-4]
+                                course_credits = cur_block[-3]
+                                serial = cur_block[-1]
+                            else:
+                                course_credits = cur_block[-4]
+                                serial = cur_block[-2]
+                        course_raw = course
+                        course_name = self.prettify(course)
+                        course = serial
+                        cur_block = list()
+                        good_to_add = True
+                        # Don't add badly put Super Senior Data
+                        if int(cur_term[:4]) <= 2009:
+                            good_to_add = False
+                        elif int(cur_term[:4]) == 2009 and not cur_term in ('2009 AUTUMN RE-EXAM','2009 AUTUMN'):
+                            good_to_add = False
+                        if good_to_add:
+                            # First adding the data to course_database
+                            if serial in course_data:
+                                if not "{} Year - {}".format(cur_branch, cur_year) in course_data[course]['Branches']:
+                                    course_data[course]['Branches'].append("{} Year - {}".format(cur_branch, cur_year))
+                                if cur_term in course_data[course]['Records']:
+                                    course_data[course]['Records'][cur_term][cur_roll] = cur_grade
                                 else:
-                                    course_credits = cur_block[-4]
-                                    serial = cur_block[-2]
-                            course_raw = course
-                            course_name = prettify(course)
-                            course = serial
-                            cur_block = list()
-                            good_to_add = True
-                            # Fuck Super Senior Data
-                            if int(cur_term[:4]) <= 2009:
-                                good_to_add = False
-                            elif int(cur_term[:4]) == 2009 and not \
-                            cur_term in ('2009 AUTUMN RE-EXAM','2009 AUTUMN'):
-                                good_to_add = False
-                            if good_to_add:
-                                # First adding the data to course_database
-                                if serial in course_data:
-                                    if not cur_branch in \
-                                    course_data[course]['Branches']:
-                                        course_data[course]['Branches']\
-                                        .append(cur_branch)
-                                    if cur_term in \
-                                    course_data[course]['Records']:
-                                        course_data[course]['Records']\
-                                            [cur_term][cur_roll] = cur_grade
-                                    else:
-                                        course_data[course]['Records']\
-                                            [cur_term] = dict()
-                                        course_data[course]['Records']\
-                                            [cur_term][cur_roll] = cur_grade
-                                    course_data[course]['Students'] += 1
-                                else:
-                                    course_data[course] = {'Name':course_name,'Records':dict(),'Branches':[cur_branch],'Credits':no_credits, 'W':0, 'FF':0, 'Students':1}
                                     course_data[course]['Records'][cur_term] = dict()
                                     course_data[course]['Records'][cur_term][cur_roll] = cur_grade
+                                course_data[course]['Students'] += 1
+                            else:
+                                course_data[course] = {'Name': course_name,
+                                                       'Records': dict(),
+                                                       'Branches': ["{} Year - {}".format(cur_branch, cur_year)],
+                                                       'Credits': no_credits,
+                                                       'W': 0,
+                                                       'FF': 0,
+                                                       'Students': 1,
+                                                       'W_list': list(),
+                                                       'FF_list': list()
+                                }
+                                course_data[course]['Records'][cur_term] = dict()
+                                course_data[course]['Records'][cur_term][cur_roll] = cur_grade
 
-                                # Now adding stuff to the student's database
-                                if cur_grade_raw == 'W':
-                                    all_details['W'] += 1
-                                    course_data[course]['W'] += 1
-                                elif cur_grade_raw == 'FF':
-                                    all_details['FF'] += 1
-                                    course_data[course]['FF'] += 1
-                                all_details['Records'][cur_term]['Courses'][serial] = cur_grade
+                            # Now adding stuff to the student's database
+                            if course in all_details['Courses']:
+                                all_details['Courses'][course]['Records'][cur_term] = cur_grade_raw
+                                all_details['Courses'][course]['Course Name'] = course_name
+                            else:
+                                all_details['Courses'][course] = {
+                                    'Course Name': course_name,
+                                    'Attempts': 0,
+                                    'Records': {cur_term: cur_grade_raw},
+                                    'Cleared': False
+                                }
+                            if cur_grade_raw == 'W':
+                                all_details['W'] += 1
+                                course_data[course]['W'] += 1
+                                course_data[course]['W_list'].append(cur_roll)
+                                all_details['Courses'][course]['Attempts'] += 1
+                            elif cur_grade_raw == 'FF':
+                                all_details['FF'] += 1
+                                course_data[course]['FF'] += 1
+                                course_data[course]['FF_list'].append(cur_roll)
+                                all_details['Courses'][course]['Attempts'] += 1
+                            else:
+                                if not all_details['Courses'][course]['Cleared']:
+                                    all_details['Courses'][course]['Attempts'] += 1
+                                    all_details['Courses'][course]['Cleared'] = True
+                            all_details['Records'][cur_term]['Courses'][serial] = cur_grade_raw
 
-                    if self.is_gpa(cur_block[-2]) and not len(cur_block) < 7:
-                        cgpa_sem = self.is_gpa(cur_block[-2])
-                        egp_tot = float(cur_block[-3])
-                        creds_tot = float(cur_block[-4])
-                        sgpa_sem = self.is_gpa(cur_block[-5])
-                        if cur_block[-6].find('.') > -1:
-                            egp_sem = float(cur_block[-6])
-                        else:
-                            egp_sem = 0
-                        #creds_sem = float(cur_block[-7])
-                        all_details['Records'][cur_term]['CGPA'] = cgpa_sem
-                        all_details['Records'][cur_term]['SGPA'] = sgpa_sem
-                        all_details['Records'][cur_term]['EGP'] = egp_sem
-                        #all_details['Records'][cur_term]['Credits Earned'] = creds_sem
-                        all_details['Records'][cur_term]['EGP_Total'] = egp_tot
-                        all_details['Records'][cur_term]['Credits_Total'] = creds_tot
-                        if cur_term in latest_terms:
-                            all_details['CGPA'] = cgpa_sem
-                            all_details['Credits_Total'] = creds_tot
-                            all_details['EGP_Total'] = egp_tot
+                if self.is_gpa(cur_block[-2]) and not len(cur_block) < 7:
+                    cgpa_sem = self.is_gpa(cur_block[-2])
+                    egp_tot = float(cur_block[-3])
+                    creds_tot = float(cur_block[-4])
+                    sgpa_sem = self.is_gpa(cur_block[-5])
+                    if cur_block[-6].find('.') > -1:
+                        egp_sem = float(cur_block[-6])
+                    else:
+                        egp_sem = 0
+                    #creds_sem = float(cur_block[-7])
+##                    all_details['Records'][cur_term]['Sem']  = cur_sem
+                    all_details['Records'][cur_term]['CGPA'] = cgpa_sem
+                    all_details['Records'][cur_term]['SGPA'] = sgpa_sem
+                    all_details['Records'][cur_term]['EGP']  = egp_sem
+                    #all_details['Records'][cur_term]['Credits Earned'] = creds_sem
+                    all_details['Records'][cur_term]['EGP_Total'] = egp_tot
+                    all_details['Records'][cur_term]['Credits_Total'] = creds_tot
+                    if cur_term in latest_terms:
+                        all_details['CGPA'] = cgpa_sem
+                        all_details['Credits_Total'] = creds_tot
+                        all_details['EGP_Total'] = egp_tot
 
             if cur_line == "endstream"+chr(10):
+                if cur_roll in database:
+                    old_details = database[cur_roll]
+##                    all_details['Sem'] += old_details['Sem']
+                    all_details['FF']  += old_details['FF']
+                    all_details['W']   += old_details['W']
+                    all_details['Records'].update(old_details['Records'])
+                    old_details['Courses'].update(all_details['Courses'])
+                    all_details['Courses'] = old_details['Courses']
                 database[cur_roll] = all_details
                 cur_cg = all_details['CGPA']
-                if not cur_branch:
-                    print(all_details['Roll'],all_details['Name'])
+##                if not cur_branch:
+##                    print(all_details['Roll'], all_details['Name'])
                 if cur_branch in department_data:
                     if cur_batch in department_data[cur_branch]:
                         department_data[cur_branch][cur_batch][cur_roll] = cur_cg
                     else:
-                        department_data[cur_branch][cur_batch] = {cur_roll:cur_cg}
+                        department_data[cur_branch][cur_batch] = {cur_roll: cur_cg}
                 else:
-                    department_data[cur_branch] = {cur_batch:{cur_roll:cur_cg}}
+                    department_data[cur_branch] = {cur_batch: {cur_roll:cur_cg}}
                 break
             cur_line = self.file.readline()
 
@@ -479,7 +526,7 @@ class PDF_Parser:
         while not cur_line in ["%%EOF","%%EOF"+chr(10)]:
             cur_line = self.file.readline()
             if cur_line == "1 1 1 rg"+chr(10):
-                individual()
+                self.individual()
 
         print("\tFile fully parsed...")
         print("\tData ready to be analysed...")
