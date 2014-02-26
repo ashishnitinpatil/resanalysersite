@@ -1,42 +1,40 @@
 ﻿#!/usr/bin/env python
-#-------------------------------------------------------------------------------
-# Name:        Result Analyser (Version 3.0)
-#
-# Author:      Asis aka !mmorta!
-#
-# Created:     03/02/2014 (V2.0 - 11/05/2013, V1.0 - 29/11/2012)
-#
-# Copyright:   (c) Ashish Patil 2014
-#
-# Licence:     Creative Commons Attribution-ShareAlike 3.0 Unported License.
-#-------------------------------------------------------------------------------
 
-
-# Imports from Python
 import os
 import re
 import sys
 import json
 import datetime
 
-# Set the current latest terms
+# Set the current latest terms depending on the time of year
 today = datetime.datetime.today()
+
+# Important note -
+# The thing with getting the student's current year, or for that matter,
+# latest term, we need to keep in mind that Winter results will arrive only
+# 'next' year (i.e. in January) & Summer, sometime in June.
+# The calculations change accordingly.
 if today.month < 6:
     latest_term = "AUTUMN"
     latest_normal_term = str(today.year-1) + " " + latest_term
     latest_normal_term2 = str(today.year-1) + " " + "WINTER"
     acad_year = "{}-{}".format(today.year-1, today.year)
-    latest_terms = [latest_normal_term, latest_normal_term + " RE-EXAM", latest_normal_term2]
+
+    latest_terms = [latest_normal_term,
+                    latest_normal_term + " RE-EXAM",
+                    latest_normal_term2]
 else:
     latest_term = "SPRING"
     acad_year = "{}-{}".format(today.year, today.year+1)
     latest_normal_term = str(today.year) + " " + latest_term
-    latest_terms = [latest_normal_term, latest_normal_term + " RE-EXAM", today.year + " TERM SUMMER"]
+
+    latest_terms = [latest_normal_term,
+                    latest_normal_term + " RE-EXAM",
+                    today.year + " TERM SUMMER"]
 
 # Manual over-ride
 # latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM', '2013 TERM SUMMER']
 
-# variables -->
 grades = {'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6,
           'SS': 10, 'CD': 5, 'DD': 4, 'FF': 0, 'W': 0}
 terms = ['SPRING', 'AUTUMN', 'RE-EXAM', 'SUMMER']
@@ -47,64 +45,16 @@ course_data = dict() # Records of every course for every sem
 department_data = dict() # Dept.-wise student records by cur_cg
 
 
-# The Main function --> (to give Command Line Interface (CLI) like feel)
-def main():
-    '''Firstly, we take in the result files/addresses, check if they are good.
-    Then parse the files & later, analyse them'''
-    global result_file, result_file_addresses
-    result_file_addresses = list()
-    # Take in files from the 'Result' directory & add them for analysis
-    for res_file in os.listdir(os.path.join(os.getcwd(),'Result')):
-        result_file_addresses.append(
-                                os.path.join(os.getcwd(),'Result',res_file))
-    # Welcome Screen
-    print("\n\tResult Analyser by !mmorta!\
-           \n\tPython Library for analysing results")
-    # Take in the address of the result file if no files in "Result" directory
-    if not result_file_addresses:
-        addr = input("\n\tEnter address for the result file (e.g. E:\civ.pdf)")
-        result_file_addresses = list(addr)
-    # Check if the address is proper/correct
-    for result_file_addr in result_file_addresses:
-        try:
-            with open(result_file_addr,'r') as result_file:
-                # File address is correct
-                file_name = os.path.basename(result_file_addr)
-                print("\n\tAddress %s seems correct..." % result_file_addr,
-                      "\n\tProcessing result file %s..." % file_name)
-
-                # Everything seems fine so parse the file & extract reqd data...
-                PDF_Parser(result_file)
-
-        except IOError:
-            print("\n\tUnable to open the file!\n")
-            result_file = None
-            print("Exiting...")
-            sys.exit(1) # Bad exit
-
-    # Write the data to files so we dont have to redo anything (if at all)
-    print("\n\tDumping all data into txt files...")
-    with open(os.path.join(os.getcwd(),'database.txt'),'w') as g1:
-        g1.write(json.dumps(database))
-    with open(os.path.join(os.getcwd(),'course_data.txt'),'w') as g2:
-        g2.write(json.dumps(course_data))
-    with open(os.path.join(os.getcwd(),'department_data.txt'),'w') as g3:
-        g3.write(json.dumps(department_data))
-    print("\tDumping finished...")
-    print("\n\tProgram terminated successfully.")
-
-    # End of main()...
-
-# Parsing stuff! -->
+### Parsing stuff! -->
 # A thorough overview of the raw PDF result file is necessary
 # to understand the PDF_Parser function properly.
 
-# Nasty name issues...
-'''The PDF is doomed. Oops, that is VNIT I suppose! :-P
-Anyways, the PDF data is very very crude & to make it look good & be so,
-I prettify things that are nasty. You can see below what it does.
-These dicts are there to replace stuff so that our database is intact & nice
-& free from repetitions & other name issues.'''
+## Nasty name issues...
+# The PDF is doomed. Oops, that is VNIT I suppose! :-P
+# Anyways, the PDF data is very very crude & to make it look good & be so,
+# I prettify things that are nasty. You can see below what it does.
+# These dicts are there to replace stuff so that our database is intact & nice
+# & free from repetitions & other name issues.
 general_names_issues = {
     'SPORTS / YOGA / LIBRARY / NCC (--)': 'SPORTS YOGA LIBRARY NCC',
     'SPORTS/YOGA/LIBRARY/NCC (--)': 'SPORTS YOGA LIBRARY NCC',
@@ -112,7 +62,8 @@ general_names_issues = {
     'SPORTS / YOGA / LIBRARY / NCC (AU)': 'SPORTS YOGA LIBRARY NCC',
     '& REUSE   \(DE\)': 'INDUSTRIAL WASTEWATER TREATMENT, RECYCLE & REUSE',
     'ENGINEERING   \(DE\)': 'RAILWAY, AIRPORT, PORTS & HARBOR ENGINEERING',
-    'ENGINEERING   \(DC\)': 'INTRODUCTION TO MATERIALS SCIENCE AND ENGINEERING'}
+    'ENGINEERING   \(DC\)': 'INTRODUCTION TO MATERIALS SCIENCE AND ENGINEERING'
+}
 
 duplication_issues = {
     'BUILDING DESIGN AND DRAWING': 'BUILDING DESIGN DRAWING',
@@ -230,7 +181,9 @@ duplication_issues = {
     'SURVERYING': 'SURVEYING',
     'ADVANCE BUILDING MATERIALS': 'ADVANCED BUILDING MATERIALS',
     'CONTEMPORARY DESIGN THEORY CRITISISM':
-        'CONTEMPORARY DESIGN THEORY CRITICISM'}
+        'CONTEMPORARY DESIGN THEORY CRITICISM'
+}
+
 
 class PDF_Parser:
 
@@ -289,10 +242,9 @@ class PDF_Parser:
                 return course
 
     def prettify_name(self, name):
-        prettified = name
-        if prettified[-1] == '\xa0':
-            prettified = prettified[:-1]
-        if prettified[-1] in ('Â',chr(194)):
+        # Clean Student's names
+        prettified = name.strip()
+        if prettified[-1] == 'Â':
             prettified = prettified[:-1]
         return prettified
 
@@ -304,22 +256,18 @@ class PDF_Parser:
             cur_stud_type = 'B. Tech.'
         elif roll[:4] == 'VNIT': # Super Senior
             cur_stud_type = 'B. Tech.'
-        elif roll[:2] in {'BA', 'AR'}:
+        elif roll[:2] in {'BA', 'AR'} or roll[2:4] in {'BA', 'AR'}:
             cur_stud_type = 'B. Arch.'
         elif roll[:2] == 'MT' or roll[2:4] == 'MT':
             cur_stud_type = 'M. Tech.'
         else:
             cur_stud_type = "Don't Know"
             print("Student type is undefined for -", roll)
-##        if cur_stud_type == 'B. Tech.':
-##            if int(roll[2:4]) <= (2000 - datetime.datetime.today().year):
-##                cur_stud_type = 'Super Senior'
         return cur_stud_type
 
     def get_year(self, roll, stud_type=None):
         cur_year = today.year - 2000 #- 1
         if stud_type in {'B. Tech.', 'B. Arch.', 'M. Tech.'}:
-            # pending corrections for roll type VNIT/U01
             if roll[:2] in {'BT', 'BA', 'MT'}:
                 stud_year = cur_year - int(roll[2:4])
             elif roll[2:4] in {'BT', 'BA', 'MT'}:
@@ -329,8 +277,15 @@ class PDF_Parser:
         return stud_year
 
     def get_batch(self, roll):
-        if roll[0] in 'LNRSTUVWXYZ' or roll[:2] == 'AR':
-            batch = acad_year[:4]
+        if roll[0] in 'LNRSTUVWXYZ':
+            if not roll[:4] == 'VNIT':
+                batch = 'BT' + acad_year[2:4]
+            else:
+                batch = 'Snr'
+        elif roll[:2] == 'AR':
+            batch = 'BA' + acad_year[2:4]
+        elif roll[:2].isdecimal():
+            batch = roll[2:4] + roll[:2]
         else:
             batch = roll[:4]
         return batch
@@ -349,27 +304,29 @@ class PDF_Parser:
         cur_name   = self.prettify_name(cur_name)
         cur_batch  = self.get_batch(cur_roll)
         cur_year   = self.get_year(cur_roll, cur_stud_type)
-##        cur_sem    = 0
+
         all_details = {'Name': cur_name,
                        'Roll': cur_roll,
                        'Stud Type': cur_stud_type,
                        'Branch': cur_branch,
                        'Batch': cur_batch,
                        'Year': cur_year,
-##                       'Sem': cur_sem,
                        'CGPA': 0,
                        'Credits_Total': 0,
                        'EGP_Total': 0,
-                       'W': 0,
-                       'FF': 0,
                        'Records': dict(),
                        'Courses': dict()
         }
+
         if cur_roll in database:
             all_details = database[cur_roll]
+
         good_to_go = True
-        if cur_stud_type in {'Super Senior','Dont Know'}:
+        if cur_stud_type == 'Dont Know':
             good_to_go = False
+
+        # Even I can't fully explain the following code.
+        # Have faith, it works! :-P
         while good_to_go:
             cur_data = self.getdata(cur_line)
             if cur_data and cur_data.split()[0] in terms:
@@ -385,9 +342,6 @@ class PDF_Parser:
                 cur_term = ' '.join(cur_term)
                 all_details['Records'][cur_term] = {'CGPA': 0, 'SGPA': 0,
                                                     'Courses': dict()}
-##                if len(cur_term.split()) <= 2:
-##                    cur_sem += 1
-##                    all_details['Sem'] = cur_sem
                 cur_block = list()
                 while not cur_data == "Credit":
                     cur_line = self.file.readline()
@@ -426,22 +380,18 @@ class PDF_Parser:
                         if good_to_add:
                             # First adding the data to course_database
                             if serial in course_data:
-                                if not "{} Year - {}".format(cur_branch, cur_year) in course_data[course]['Branches']:
-                                    course_data[course]['Branches'].append("{} Year - {}".format(cur_branch, cur_year))
+                                if not "{0} - {1}".format(cur_branch, cur_batch) in course_data[course]['Branches']:
+                                    course_data[course]['Branches'].append("{0} - {1}".format(cur_branch, cur_batch))
                                 if cur_term in course_data[course]['Records']:
                                     course_data[course]['Records'][cur_term][cur_roll] = cur_grade
                                 else:
                                     course_data[course]['Records'][cur_term] = dict()
                                     course_data[course]['Records'][cur_term][cur_roll] = cur_grade
-                                course_data[course]['Students'] += 1
                             else:
                                 course_data[course] = {'Name': course_name,
                                                        'Records': dict(),
-                                                       'Branches': ["{} Year - {}".format(cur_branch, cur_year)],
+                                                       'Branches': ["{0} - {1}".format(cur_branch, cur_batch)],
                                                        'Credits': no_credits,
-                                                       'W': 0,
-                                                       'FF': 0,
-                                                       'Students': 1,
                                                        'W_list': list(),
                                                        'FF_list': list()
                                 }
@@ -450,30 +400,26 @@ class PDF_Parser:
 
                             # Now adding stuff to the student's database
                             if course in all_details['Courses']:
-                                all_details['Courses'][course]['Records'][cur_term] = cur_grade_raw
+                                all_details['Courses'][course]['Records'][cur_term] = cur_grade
                                 all_details['Courses'][course]['Course Name'] = course_name
                             else:
                                 all_details['Courses'][course] = {
                                     'Course Name': course_name,
                                     'Attempts': 0,
-                                    'Records': {cur_term: cur_grade_raw},
+                                    'Records': {cur_term: cur_grade},
                                     'Cleared': False
                                 }
                             if cur_grade_raw == 'W':
-                                all_details['W'] += 1
-                                course_data[course]['W'] += 1
                                 course_data[course]['W_list'].append(cur_roll)
                                 all_details['Courses'][course]['Attempts'] += 1
                             elif cur_grade_raw == 'FF':
-                                all_details['FF'] += 1
-                                course_data[course]['FF'] += 1
                                 course_data[course]['FF_list'].append(cur_roll)
                                 all_details['Courses'][course]['Attempts'] += 1
                             else:
                                 if not all_details['Courses'][course]['Cleared']:
                                     all_details['Courses'][course]['Attempts'] += 1
                                     all_details['Courses'][course]['Cleared'] = True
-                            all_details['Records'][cur_term]['Courses'][serial] = cur_grade_raw
+                            all_details['Records'][cur_term]['Courses'][serial] = cur_grade
 
                 if self.is_gpa(cur_block[-2]) and not len(cur_block) < 7:
                     cgpa_sem = self.is_gpa(cur_block[-2])
@@ -485,7 +431,7 @@ class PDF_Parser:
                     else:
                         egp_sem = 0
                     #creds_sem = float(cur_block[-7])
-##                    all_details['Records'][cur_term]['Sem']  = cur_sem
+                    #all_details['Records'][cur_term]['Sem']  = cur_sem
                     all_details['Records'][cur_term]['CGPA'] = cgpa_sem
                     all_details['Records'][cur_term]['SGPA'] = sgpa_sem
                     all_details['Records'][cur_term]['EGP']  = egp_sem
@@ -496,20 +442,26 @@ class PDF_Parser:
                         all_details['CGPA'] = cgpa_sem
                         all_details['Credits_Total'] = creds_tot
                         all_details['EGP_Total'] = egp_tot
+                    # Special senior data handling
+                    elif cur_batch in {'BT09', 'Snr'}:
+                        all_details['CGPA'] = cgpa_sem
+                        all_details['Credits_Total'] = creds_tot
+                        all_details['EGP_Total'] = egp_tot
 
-            if cur_line == "endstream"+chr(10):
+            if cur_line.strip() == "endstream":
                 if cur_roll in database:
                     old_details = database[cur_roll]
-##                    all_details['Sem'] += old_details['Sem']
-                    all_details['FF']  += old_details['FF']
-                    all_details['W']   += old_details['W']
-                    all_details['Records'].update(old_details['Records'])
-                    old_details['Courses'].update(all_details['Courses'])
-                    all_details['Courses'] = old_details['Courses']
+                    if len(old_details['Records']) > len(all_details['Records']):
+                        all_details = old_details
+                    else:
+                        old_details['Records'].update(all_details['Records'])
+                        all_details['Records'] = old_details['Records']
+                        old_details['Courses'].update(all_details['Courses'])
+                        all_details['Courses'] = old_details['Courses']
                 database[cur_roll] = all_details
                 cur_cg = all_details['CGPA']
-##                if not cur_branch:
-##                    print(all_details['Roll'], all_details['Name'])
+                #if not cur_branch:
+                #    print(all_details['Roll'], all_details['Name'])
                 if cur_branch in department_data:
                     if cur_batch in department_data[cur_branch]:
                         department_data[cur_branch][cur_batch][cur_roll] = cur_cg
@@ -523,20 +475,20 @@ class PDF_Parser:
     def run(self):
         # Runs the Parser
         cur_line = self.file.readline()
-        while not cur_line in ["%%EOF","%%EOF"+chr(10)]:
+        while not cur_line.strip() == "%%EOF":
             cur_line = self.file.readline()
-            if cur_line == "1 1 1 rg"+chr(10):
+            if cur_line.strip() == "1 1 1 rg":
                 self.individual()
 
-        print("\tFile fully parsed...")
-        print("\tData ready to be analysed...")
+        print("\tData successfully parsed from file...")
         # End of PDF Parser...
 
 
 # Analysis shit! :-P  -->
 
 class Analyser:
-    def All_Courses(self,serial=True, terms=True, alphabetically = True):
+
+    def All_Courses(self, serial=True, terms=True, alphabetically=True):
         data = list()
         for each in course_data:
             to_print = str(each)
@@ -549,12 +501,14 @@ class Analyser:
         if alphabetically:
             data.sort()
         return data
+
     def Individual_Record(self,roll,term=None):
         if roll in database:
             if not term:
                 return database[roll]
             else:
                 return database[roll]['Records'][term]
+
     def Make_Marklist(self,course=False,course_term=None,branch=None,batch=None,term=latest_terms[0],cg=False,sg=False,names=False):
         mark_list = list()
         if course and course in course_data:
@@ -611,7 +565,9 @@ class Analyser:
                                 mark_list.append(cur_sg)
                             break
             return mark_list
-        return list() # If the input was wrong, we dont want to return None.
+        # If the input was wrong, we dont want to return None.
+        return list()
+
     def Mean_Deviation(self,marklist): # Takes marks, outputs mean & std deviation
         if len(marklist) > 0:
             if not isinstance(marklist[0],tuple):
@@ -653,6 +609,7 @@ class Analyser:
                 if N:
                     devn = (devn/N)**0.5
                 return mean, devn, fail
+
     def Gradify(self,marklist,percent=True,cumulative=False):
         categories = [[10,0],[9,0],[8,0],[7,0],[6,0],[5,0],[4,0]]#,['F',0]]
         if cumulative:
@@ -672,6 +629,7 @@ class Analyser:
             for i in range(len(categories)):
                 categories[i][1] = categories[i][1]*100/total
         return categories
+
     def Ranking(self,marklist):
         if marklist:
             if not isinstance(marklist[0],tuple):
@@ -691,9 +649,10 @@ class Analyser:
                     cur_data = sorted(data_dict[mark])
                     to_return.append((len(to_return)+1,cur_data))
                 return to_return
+
     def Course_Performance(self,course,exclude_re=True,percent=True,cumulative=False):
         # Need terms & their graded data.
-        poss_grades = [10,9,8,7,6,5,4,'F']
+        poss_grades = [10, 9, 8, 7, 6, 5, 4, 'F']
         big_list = self.Make_Marklist(course)
         big_list.sort(key=(lambda k: k[0]))
         graded_list = list()
@@ -701,7 +660,7 @@ class Analyser:
         for each in big_list:
             if exclude_re and each[0][-1] == 'M':
                 continue
-            course_terms.append(each[0].encode('ascii','ignore'))
+            course_terms.append(each[0])
             graded_list.append(self.Gradify(each[1:],percent,cumulative))
         assert len(course_terms) == len(graded_list)
         to_return = [course_terms,list()]
@@ -713,7 +672,8 @@ class Analyser:
                 cur['data'].append(graded_list[k][i][1])
             to_return[1].append(cur)
         return to_return
-    def Student_Performance(self,roll,egp=True):
+
+    def Student_Performance(self, roll, egp=True):
         # Need terms, egps, term-wise course grades
         to_return, terms, term_data = list(), list(), list()
         stud_data = database[roll]
@@ -724,9 +684,9 @@ class Analyser:
             else:
                 cur_data['sg'] = stud_data['Records'][term]['SGPA']
             cur_data['courses'], cur_data['data'] = list(), list()
-            cur_data['name'] = term.encode('ascii','ignore')
+            cur_data['name'] = term
             for course in stud_data['Records'][term]['Courses']:
-                cur_data['courses'].append((course_data[course]['Name']+' ('+course+')').encode('ascii','ignore'))
+                cur_data['courses'].append(course_data[course]['Name']+' ('+course+')')
                 cur_data['data'].append(stud_data['Records'][term]['Courses'][course])
             term_data.append(cur_data)
             terms.append(cur_data['name'])
@@ -739,6 +699,52 @@ class Analyser:
     # End of Analyser
 
 
-# The main() caller... Finally :)
+## The Main function --> (to give Command Line Interface feel)
+def main():
+    '''Firstly, we take in the result files/addresses, check if they are good.
+    Then parse the files & later, analyse them'''
+    global result_file, result_file_addresses
+    result_file_addresses = list()
+    # Take in files from the 'Result' directory & add them for analysis
+    for res_file in os.listdir(os.path.join(os.getcwd(),'Result')):
+        result_file_addresses.append(
+                                os.path.join(os.getcwd(),'Result',res_file))
+    # Welcome Screen
+    print("\n\tResult Analyser by !mmorta!\
+           \n\tPython Library for analysing results")
+    # Take in the address of the result file if no files in "Result" directory
+    if not result_file_addresses:
+        addr = input("\n\tEnter address for the result file (e.g. E:\civ.pdf)")
+        result_file_addresses = list(addr)
+    # Check if the address is proper/correct
+    for result_file_addr in result_file_addresses:
+        try:
+            with open(result_file_addr,'r') as result_file:
+                # File address is correct
+                file_name = os.path.basename(result_file_addr)
+                print("\n\tProcessing result file ** %s **..." % file_name)
+
+                # Everything seems fine so parse the file & extract reqd data...
+                PDF_Parser(result_file)
+        except IOError:
+            print("\n\tUnable to open the file!\n")
+            result_file = None
+            print("Exiting...")
+            sys.exit(1) # Bad exit
+
+    # Write the data to files so we dont have to redo anything (if at all)
+    print("\n\tDumping all data into txt files...")
+    with open(os.path.join(os.getcwd(),'database.txt'),'w') as g1:
+        g1.write(json.dumps(database))
+    with open(os.path.join(os.getcwd(),'course_data.txt'),'w') as g2:
+        g2.write(json.dumps(course_data))
+    with open(os.path.join(os.getcwd(),'department_data.txt'),'w') as g3:
+        g3.write(json.dumps(department_data))
+    print("\tDumping finished...")
+    print("\n\tProgram terminated successfully.")
+
+    # End of main()...
+
+
 if __name__ == '__main__':
     main()

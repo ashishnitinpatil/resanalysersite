@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="ResAnalyser is a website for analysing results of VNIT, Nagpur." />
+<meta name="keywords" content="Result,VNIT,Analyser,Nagpur,NIT,Resanalyser" />
+<meta http-equiv="cache-control" content="no-store" />
+<meta http-equiv="content-language" content="en-US" />
+<title>Course Analysis</title>
+<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
+<!--Google Analytics-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33241707-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<!--End of Google Analytics script-->
+    		
+        <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+		<script type="text/javascript">
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'ADV. HYDRAULICS'
+            },
+            xAxis: {
+                categories: ['SPRING 2011', 'SPRING 2012']
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Performance (%)'
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [ 
+                        {   name: '10',
+                            data: [16, 16]
+                                   
+                        },
+                        {   name: '9',
+                            data: [10, 10]
+                                   
+                        },
+                        {   name: '8',
+                            data: [12, 12]
+                                   
+                        },
+                        {   name: '7',
+                            data: [19, 19]
+                                   
+                        },
+                        {   name: '6',
+                            data: [7, 7]
+                                   
+                        },
+                        {   name: '5',
+                            data: [7, 7]
+                                   
+                        },
+                        {   name: '4',
+                            data: [3, 3]
+                                   
+                        },
+                        {   name: 'F',
+                            data: [0, 0]
+                                   
+                        }, 
+            ]
+        });
+    });
+    
+
+		</script>
+</head>
+<body>
+    <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/modules/exporting.js"></script>
+
+    <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+</body>

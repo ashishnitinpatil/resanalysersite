@@ -1,35 +1,56 @@
 #!/usr/bin/env python
-# Copyleft 2013 @!mmorta!
-#
-# Licensed under Creative Commons Attribution-ShareAlike 3.0 Unported License;
 
-#All the importing business goes here...
-import os, re, sys, time, logging
+import os
+import re
+import gc
+import sys
+import time
 import json
+import cPickle as pickle
+import logging
 import webapp2
-from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.ext.webapp import template
+import datetime
 
-# Globals --->
+today = datetime.datetime.today()
+if today.month < 6:
+    latest_term = "AUTUMN"
+    latest_normal_term = str(today.year-1) + " " + latest_term
+    latest_normal_term2 = str(today.year-1) + " " + "WINTER"
+    acad_year = "{}-{}".format(today.year-1, today.year)
 
-latest_terms = ['AUTUMN 2012','RE-EXAM AUTUMN 2012']
-database = {} # For individual student data storing
-course_data = {} # For record keeping of every course for every semester
-rank_data = {} # Mark-lists for all departments, batches, etc.
-cg_distribution = {} # Stores cg statistics (gradified)
-grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':0,'FF':0,'SS':10}
-terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
-from database import database
-from course_data import course_data
-from rank_data import rank_data
-from cg_distribution import cg_distribution
+    latest_terms = [latest_normal_term,
+                    latest_normal_term + " RE-EXAM",
+                    latest_normal_term2]
+else:
+    latest_term = "SPRING"
+    acad_year = "{}-{}".format(today.year, today.year+1)
+    latest_normal_term = str(today.year) + " " + latest_term
 
-# Analysis shit! :-P  (Apparently I can't separate the globals or whatever & so have to include the whole ResAnalyser.Analyser class)-->
+    latest_terms = [latest_normal_term,
+                    latest_normal_term + " RE-EXAM",
+                    today.year + " TERM SUMMER"]
+
+grades = {'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6,
+          'SS': 10, 'CD': 5, 'DD': 4, 'FF': 0, 'W': 0}
+terms = ['SPRING', 'AUTUMN', 'RE-EXAM', 'SUMMER']
+
+
+database = dict() # For individual student data storing
+course_data = dict() # Records of every course for every sem
+department_data = dict() # Dept.-wise student records by cur_cg
+cg_avgs = dict()
+cg_distribution = dict()
+cg_stats = dict()
+course_stats = dict()
+rank_data = dict()
 
 class Analyser:
-    def All_Courses(self,serial=True, terms=True, alphabetically = True):
-        data = []
+
+    def All_Courses(self, serial=True, terms=True, alphabetically=True):
+        data = list()
         for each in course_data:
             to_print = str(each)
             if serial:
@@ -41,21 +62,23 @@ class Analyser:
         if alphabetically:
             data.sort()
         return data
+
     def Individual_Record(self,roll,term=None):
         if roll in database:
             if not term:
                 return database[roll]
             else:
                 return database[roll]['Records'][term]
+
     def Make_Marklist(self,course=False,course_term=None,branch=None,batch=None,term=latest_terms[0],cg=False,sg=False,names=False):
-        mark_list = []
+        mark_list = list()
         if course and course in course_data:
             if course_term and course_term in course_data[course]['Records']:
                 for rolls in course_data[course]['Records'][course_term]:
                     mark_list.append(course_data[course]['Records'][course_term][rolls])
                 return mark_list
             else:
-                big_list = []
+                big_list = list()
                 for course_term in course_data[course]['Records']:
                     mark_list.append(course_term)
                     for rolls in course_data[course]['Records'][course_term]:
@@ -64,7 +87,7 @@ class Analyser:
                         else:
                             mark_list.append(course_data[course]['Records'][course_term][rolls])
                     big_list.append(mark_list)
-                    mark_list = []
+                    mark_list = list()
                 return big_list
         elif cg:
             for roll in database:
@@ -103,7 +126,9 @@ class Analyser:
                                 mark_list.append(cur_sg)
                             break
             return mark_list
-        return [] # If the input was wrong, we dont want to return None.
+        # If the input was wrong, we dont want to return None.
+        return list()
+
     def Mean_Deviation(self,marklist): # Takes marks, outputs mean & std deviation
         if len(marklist) > 0:
             if not isinstance(marklist[0],tuple):
@@ -145,34 +170,34 @@ class Analyser:
                 if N:
                     devn = (devn/N)**0.5
                 return mean, devn, fail
+
     def Gradify(self,marklist,percent=True,cumulative=False):
         categories = [[10,0],[9,0],[8,0],[7,0],[6,0],[5,0],[4,0],['F',0]]
         if cumulative:
-            categories = [[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],['F',0]]
+            categories = [['F',0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]
         for mark in marklist:
             if isinstance(mark,tuple):
                 mark = mark[0]
-            if mark == 0:
-                categories[7][1] += 1
+            #if mark == 0:
+            #    categories[7][1] += 1
             for i in range(len(categories)-1):
                 if mark >= categories[i][0]:
                     categories[i][1] += 1
                     if not cumulative:
                         break
         if percent:
-            total = 0
-            for i in range(len(categories)):
-                total += categories[i][1]
+            total = len(marklist)
             for i in range(len(categories)):
                 categories[i][1] = categories[i][1]*100/total
         return categories
+
     def Ranking(self,marklist):
         if marklist:
             if not isinstance(marklist[0],tuple):
                 return sorted(marklist,reverse=True)
             else:
-                data_dict = {}
-                marks_list = []
+                data_dict = dict()
+                marks_list = list()
                 for each in marklist:
                     if each[0] in data_dict:
                         data_dict[each[0]].append(each[1])
@@ -180,77 +205,110 @@ class Analyser:
                         data_dict[each[0]] = [each[1]]
                     marks_list.append(each[0])
                 marks_list = set(marks_list)
-                to_return = []
+                to_return = list()
                 for mark in sorted(marks_list,reverse=True):
                     cur_data = sorted(data_dict[mark])
                     to_return.append((len(to_return)+1,cur_data))
                 return to_return
+
     def Course_Performance(self,course,exclude_re=True,percent=True,cumulative=False):
         # Need terms & their graded data.
-        poss_grades = [10,9,8,7,6,5,4,'F']
+        poss_grades = [10, 9, 8, 7, 6, 5, 4, 0]
         big_list = self.Make_Marklist(course)
         big_list.sort(key=(lambda k: k[0]))
-        graded_list = []
-        course_terms = []
+        graded_list = list()
+        course_terms = list()
         for each in big_list:
             if exclude_re and each[0][-1] == 'M':
                 continue
-            course_terms.append(each[0].encode('ascii','ignore'))
+            course_terms.append(str(each[0]))
             graded_list.append(self.Gradify(each[1:],percent,cumulative))
         assert len(course_terms) == len(graded_list)
-        to_return = [course_terms,[]]
+        to_return = [course_terms,list()]
         for i in range(len(poss_grades)):
-            cur = {}
+            cur = dict()
             cur['name'] = str(poss_grades[i])
-            cur['data'] = []
+            cur['data'] = list()
             for k in range(len(graded_list)):
                 cur['data'].append(graded_list[k][i][1])
             to_return[1].append(cur)
         return to_return
-    def Student_Performance(self,roll,egp=True):
+
+    def Student_Performance(self, roll, egp=True):
         # Need terms, egps, term-wise course grades
-        to_return, terms, term_data = [], [], []
+        to_return, terms, term_data = list(), list(), list()
         stud_data = database[roll]
         for term in sorted(stud_data['Records'].keys()):
-            cur_data = {}
+            cur_data = dict()
             if egp:
                 cur_data['egp'] = stud_data['Records'][term]['EGP']
             else:
                 cur_data['sg'] = stud_data['Records'][term]['SGPA']
-            cur_data['courses'], cur_data['data'] = [], []
-            cur_data['name'] = term.encode('ascii','ignore')
+            cur_data['courses'], cur_data['data'] = list(), list()
+            cur_data['name'] = str(term)
             for course in stud_data['Records'][term]['Courses']:
-                cur_data['courses'].append((course_data[course]['Name']+' ('+course+')').encode('ascii','ignore'))
+                cur_data['courses'].append(str(course_data[course]['Name']+' ('+course+')'))
                 cur_data['data'].append(stud_data['Records'][term]['Courses'][course])
             term_data.append(cur_data)
-            terms.append(cur_data['name'])
+            terms.append(str(cur_data['name']))
         for i in range(len(term_data)):
             term_data[i]['color'] = i
         to_return.append(terms)
         to_return.append(term_data)
         return to_return
 
-    # End of Analyser
+# Turn off python's automatic garbage collector
+gc.disable()
 
+def run_once():
+    global cg_avgs, cg_distribution, cg_stats, course_data, course_stats, \
+           database, department_data, rank_data
+##
+##    with open('cg_avgs'+'.pickle') as cur_file:
+##        cg_avgs = pickle.load(cur_file)
+##    with open('cg_distribution'+'.pickle') as cur_file:
+##        cg_distribution = pickle.load(cur_file)
+##    with open('course_data'+'.pickle') as cur_file:
+##        course_data = pickle.load(cur_file)
+##    with open('course_stats'+'.pickle') as cur_file:
+##        course_stats = pickle.load(cur_file)
+##    with open('database'+'.pickle') as cur_file:
+##        database = pickle.load(cur_file)
+##    with open('rank_data'+'.pickle') as cur_file:
+##        rank_data = pickle.load(cur_file)
 
+##    with open('cg_avgs'+'.txt') as cur_file:
+##        cg_avgs = json.load(cur_file)
+    with open('cg_distribution'+'.txt') as cur_file:
+        cg_distribution = json.load(cur_file)
+    with open('course_data'+'.txt') as cur_file:
+        course_data = json.load(cur_file)
+##    with open('course_stats'+'.txt') as cur_file:
+##        course_stats = json.load(cur_file)
+    with open('database'+'.txt') as cur_file:
+        database = json.load(cur_file)
+    with open('rank_data'+'.txt') as cur_file:
+        rank_data = json.load(cur_file)
+
+run_once()
 #All the necessary funcs go here...
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write(template.render("index.html", {}))
+        self.response.out.write(template.render("templates/index.html", {}))
 
 class CourseHandler(webapp2.RequestHandler):
     def get(self):
         template_values={}
         serial = self.request.get('serial')
         template_values['serial'] = serial
-        if serial in (None,False,"","all"):
-            path = "course_all.html"
+        if not serial or serial == "all":
+            path = "templates/course_all_hardcoded.html"
             #data = sorted(course_data.keys())
-            data = sorted(map(lambda x: (x,course_data[x]['Name']),course_data),key=lambda x: x[0])
-            template_values['data'] = data
+            #data = sorted(map(lambda x: (x,course_data[x]['Name']),course_data),key=lambda x: x[0])
+            #template_values['data'] = data
         else:
-            path = "courses.html"
+            path = "templates/courses.html"
             q = self.request.get('q')
             if q == 'data':
                 data = course_data[serial]
@@ -265,11 +323,8 @@ class CourseHandler(webapp2.RequestHandler):
                 if str(per) == '0':
                     percent = False
                 data = None
-                render_data = memcache.get('_course_'+str(serial)+str(exclude_re)+str(percent))
-                if not render_data:
-                    do = Analyser()
-                    render_data = do.Course_Performance(serial,exclude_re,percent)
-                    memcache.set('_course_'+str(serial)+str(exclude_re)+str(percent),render_data)
+                do = Analyser()
+                render_data = do.Course_Performance(serial,exclude_re,percent)
                 template_values['terms'] = render_data[0]
                 template_values['series'] = render_data[1]
                 template_values['exclude_re'] = exclude_re
@@ -282,7 +337,7 @@ class StudentHandler(webapp2.RequestHandler):
         template_values={}
         roll = self.request.get('roll')
         roll = roll.upper()
-        path = "student.html"
+        path = "templates/student.html"
         template_values['present'] = True
         template_values['roll'] = roll
         data = None
@@ -329,22 +384,23 @@ class StudentHandler(webapp2.RequestHandler):
 class StatsHandler(webapp2.RequestHandler):
     def get(self):
         template_values={}
-        path = "stats.html"
+        path = "templates/stats.html"
         template_values['present'] = True
         batch = self.request.get('batch','')
         branch = self.request.get('branch','')
         if not branch and not batch: # Display all statistics links
-            data = memcache.get('_stats_data')
-            if not data:
-                data = {'Lists':[],'Dicts':{}}
-                for each in cg_distribution['FalseFalse']:
-                    if isinstance(cg_distribution['FalseFalse'][each], list):
-                        data['Lists'].append(each)
-                    else:
-                        data['Dicts'][each] = sorted(list(cg_distribution['FalseFalse'][each].keys()))
-                data['Lists'] = sorted(data['Lists'])
-                memcache.set('_stats_data',data)
-            template_values['data'] = data
+            path = "templates/stats_hardcoded.html"
+##            data = memcache.get('_stats_data')
+##            if not data:
+##                data = {'Lists':[],'Dicts':{}}
+##                for each in cg_distribution['FalseFalse']:
+##                    if isinstance(cg_distribution['FalseFalse'][each], list):
+##                        data['Lists'].append(each)
+##                    else:
+##                        data['Dicts'][each] = sorted(list(cg_distribution['FalseFalse'][each].keys()))
+##                data['Lists'] = sorted(data['Lists'])
+##                memcache.set('_stats_data',data)
+##            template_values['data'] = data
         else:                        # Display the relevant statistics
             cumulative = self.request.get('cumulative',False)
             percent = self.request.get('percent',True)
@@ -374,38 +430,31 @@ class StatsHandler(webapp2.RequestHandler):
             template_values['series'] = series
         self.response.out.write(template.render(path, template_values))
 
-class MarklistHandler(webapp2.RequestHandler):
+class CommentsHandler(webapp2.RequestHandler):
     def get(self):
-        path = "marklist.html"
-        template_values={}
-        self.response.out.write(template.render(path, template_values))
-    def post(self):
-        template_values={}
-        path = "marklist.html"
-        serial = self.request.get('serial')
-		#terms = self.request.get('terms')
-        get_data = Analyser()
-        if serial == 'on': serial = True
-        else: serial = False
-		#if terms == 'on': terms = True
-		#else: terms = False
-        data = get_data.Make_Marklist()
-        template_values['data'] = data
-        self.response.out.write(template.render(path, template_values))
+        to_render = memcache.get('_static_comments')
+        if not to_render:
+            to_render = template.render("templates/comments.html", {})
+            memcache.set('_static_comments',to_render)
+        self.response.out.write(to_render)
 
 class PerformanceHandler(webapp2.RequestHandler):
     def get(self):
         template_values = {}
-        q = self.request.get('q',False)
+        q = self.request.get('q', False)
         if q == 'batchwise':
+##            template_values['perfdata'] = cg_avgs[1]
+##            to_render = template.render("templates/perfbatchwise.html", template_values)
             to_render = memcache.get('_perf_batchwise')
             if not to_render:
-                to_render = template.render("perfbatchwise.html", {})
+                to_render = template.render("templates/perfbatchwise_hardcoded.html", {})
                 memcache.set('_perf_batchwise', to_render)
         else:
+##            template_values['perfdata'] = cg_avgs[0]
+##            to_render = template.render("templates/performance.html", template_values)
             to_render = memcache.get('_perf_complete')
             if not to_render:
-                to_render = template.render("performance.html", {})
+                to_render = template.render("templates/performance_hardcoded.html", {})
                 memcache.set('_perf_complete', to_render)
         self.response.out.write(to_render)
 
@@ -413,15 +462,18 @@ class CoursePerfHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_perf_course')
         if not to_render:
-            to_render = template.render("course_perf.html", {})
+            to_render = template.render("templates/course_perf_hardcoded.html", {})
             memcache.set('_perf_course',to_render)
         self.response.out.write(to_render)
+##        template_values = {'course_stats': course_stats}
+##        to_render = template.render("templates/course_perf.html", template_values)
+##        self.response.out.write(to_render)
 
 class PrivacyHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_static_privacy')
         if not to_render:
-            to_render = template.render("privacy.html", {})
+            to_render = template.render("templates/privacy.html", {})
             memcache.set('_static_privacy',to_render)
         self.response.out.write(to_render)
 
@@ -429,7 +481,7 @@ class TOSHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_static_tos')
         if not to_render:
-            to_render = template.render("tos.html", {})
+            to_render = template.render("templates/tos.html", {})
             memcache.set('_static_tos',to_render)
         self.response.out.write(to_render)
 
@@ -437,7 +489,7 @@ class AboutHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_static_about')
         if not to_render:
-            to_render = template.render("about.html", {})
+            to_render = template.render("templates/about.html", {})
             memcache.set('_static_about',to_render)
         self.response.out.write(to_render)
 
@@ -445,23 +497,9 @@ class ChangelogHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_static_changelog')
         if not to_render:
-            to_render = template.render("changelog.html", {})
+            to_render = template.render("templates/changelog.html", {})
             memcache.set('_static_changelog',to_render)
         self.response.out.write(to_render)
-
-class TestHandler(webapp2.RequestHandler):
-    def get(self):
-        path = "testing.html"
-        data = [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-        template_values={'data':data}
-        self.response.out.write(template.render(path, template_values))
-
-class Test2Handler(webapp2.RequestHandler):
-    def get(self):
-        path = "testing2.html"
-        data = database
-        template_values={'data':data}
-        self.response.out.write(template.render(path, template_values))
 
 def handle_404(request, response, exception):
     logging.exception(exception)
@@ -470,7 +508,10 @@ def handle_404(request, response, exception):
 
 def handle_500(request, response, exception):
     logging.exception(exception)
-    response.write('A server error occurred! Report has been logged. Work underway asap.')
+    response.write('A server error occurred! Report has been logged. '
+                   'If you think this is SEVERE & NOT your fault, '
+                   'kindly report it by any convenient means :)'
+                   'ashishnitinpatil@gmail.com')
     response.set_status(500)
 
 
@@ -478,16 +519,14 @@ def handle_500(request, response, exception):
 app = webapp2.WSGIApplication([('/',MainHandler),
                                ('/courses',CourseHandler),
                                ('/student',StudentHandler),
-                               ('/marklist',MarklistHandler),
                                ('/tos',TOSHandler),
                                ('/about',AboutHandler),
                                ('/privacy',PrivacyHandler),
-                               ('/testing',TestHandler),
+                               ('/comments',CommentsHandler),
                                ('/changelog',ChangelogHandler),
                                ('/stats',StatsHandler),
                                ('/performance',PerformanceHandler),
-                               ('/courseperf',CoursePerfHandler),
-                               ('/testing2',Test2Handler)],
+                               ('/courseperf',CoursePerfHandler),],
                                debug=True)
 app.error_handlers[404] = handle_404
 app.error_handlers[500] = handle_500
