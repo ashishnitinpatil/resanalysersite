@@ -1,46 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}Terms Of Service{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>Terms Of Service</title>
-</head>
-<body>
-    <h2>Terms Of Service</h2>
-    <div class="center">
-    The presented data is by far, accurate.<br/>
-    If you find any discrepancies please report the same.<br/>
-    I can NOT be held responsible for any flaws or errors or any other as such discrepancies!<br/>
-    You may use the result analysis in whatever way you find useful<br/>
-    (I urge you to respect privacy of other people though).<br/><br/>
-    The data utilized is publicly available & best possible measures are taken by me<br/>
-    to preserve the privacy of everyone, at least much more than what the college does.<br/>
-    If you still have any what-so-ever objections, please report them to <a target="_blank" class="immo" href="https://www.facebook.com/ashishnitinpatil">!mmorta!</a><br/>
-    <br/><br/>For those curious nerds out there, have a look at <a href="https://www.github.com/ashishnitinpatil">my github account</a>.
-    </div>
-</body>
-</html>
+{% block content %}
+    <h2>Terms of Service</h2>
+    <div>
+	<p>
+    <span class="highlight">I can NOT be held responsible for ANY flaws, errors or any other, as such discrepancies!</span><br>
+	The presented data is by far, accurate.<br>
+    If you find any discrepancies please report the same.<br>
+    You may use the result analysis in whatever way you find useful<br>
+    (I urge you to respect privacy of other people though).<br></p>
+    <p>The data utilized is publicly available & best possible measures are taken by me<br>
+    to preserve the privacy of everyone, at least much more than what the college does.<br>
+    If you still have any what-so-ever objections, please <a target="_blank" class="immo" href="https://www.facebook.com/ashishnitinpatil">report them to me</a>.<br>
+	</p></div>
+{% endblock %}

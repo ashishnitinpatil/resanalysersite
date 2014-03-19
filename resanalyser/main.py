@@ -2,11 +2,11 @@
 
 import os
 import re
-import gc
 import sys
 import time
 import json
 import cPickle as pickle
+import pprint
 import logging
 import webapp2
 from google.appengine.ext import db
@@ -257,34 +257,18 @@ class Analyser:
         to_return.append(term_data)
         return to_return
 
-# Turn off python's automatic garbage collector
-gc.disable()
-
 def run_once():
     global cg_avgs, cg_distribution, cg_stats, course_data, course_stats, \
            database, department_data, rank_data
-##
-##    with open('cg_avgs'+'.pickle') as cur_file:
-##        cg_avgs = pickle.load(cur_file)
-##    with open('cg_distribution'+'.pickle') as cur_file:
-##        cg_distribution = pickle.load(cur_file)
-##    with open('course_data'+'.pickle') as cur_file:
-##        course_data = pickle.load(cur_file)
-##    with open('course_stats'+'.pickle') as cur_file:
-##        course_stats = pickle.load(cur_file)
-##    with open('database'+'.pickle') as cur_file:
-##        database = pickle.load(cur_file)
-##    with open('rank_data'+'.pickle') as cur_file:
-##        rank_data = pickle.load(cur_file)
 
-##    with open('cg_avgs'+'.txt') as cur_file:
-##        cg_avgs = json.load(cur_file)
+    with open('cg_avgs'+'.txt') as cur_file:
+        cg_avgs = json.load(cur_file)
     with open('cg_distribution'+'.txt') as cur_file:
         cg_distribution = json.load(cur_file)
     with open('course_data'+'.txt') as cur_file:
         course_data = json.load(cur_file)
-##    with open('course_stats'+'.txt') as cur_file:
-##        course_stats = json.load(cur_file)
+    with open('course_stats'+'.txt') as cur_file:
+        course_stats = json.load(cur_file)
     with open('database'+'.txt') as cur_file:
         database = json.load(cur_file)
     with open('rank_data'+'.txt') as cur_file:
@@ -295,7 +279,11 @@ run_once()
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write(template.render("templates/index.html", {}))
+        to_render = memcache.get('_static_main__')
+        if not to_render:
+            to_render = template.render("templates/index.html", {})
+            memcache.set('_static_main__',to_render)
+        self.response.out.write(to_render)
 
 class CourseHandler(webapp2.RequestHandler):
     def get(self):
@@ -303,13 +291,24 @@ class CourseHandler(webapp2.RequestHandler):
         serial = self.request.get('serial')
         template_values['serial'] = serial
         if not serial or serial == "all":
-            path = "templates/course_all_hardcoded.html"
-            #data = sorted(course_data.keys())
-            #data = sorted(map(lambda x: (x,course_data[x]['Name']),course_data),key=lambda x: x[0])
-            #template_values['data'] = data
+            to_render = memcache.get('_static_courses_all__')
+            if not to_render:
+                path = "templates/course_all.html"
+                data = sorted(course_data.keys())
+                data = sorted(map(lambda x: (x,course_data[x]['Name']),course_data),key=lambda x: x[0])
+##                categorised_data = {}
+##                for each in data:
+##                    if each[0][:3] not in categorised_data:
+##                        categorised_data[each[0][:3]] = [each]
+##                    else:
+##                        categorised_data[each[0][:3]].append(each)
+##                template_values['categorised_data'] = categorised_data
+                template_values['data'] = data
+                to_render = template.render(path, template_values)
+                memcache.set('_static_courses_all__', to_render)
         else:
-            path = "templates/courses.html"
             q = self.request.get('q')
+            path = "templates/courses.html"
             if q == 'data':
                 data = course_data[serial]
             else:
@@ -330,20 +329,21 @@ class CourseHandler(webapp2.RequestHandler):
                 template_values['exclude_re'] = exclude_re
                 template_values['percent'] = percent
             template_values['data'] = data
-        self.response.out.write(template.render(path, template_values))
+            to_render = template.render(path, template_values)
+        self.response.out.write(to_render)
 
 class StudentHandler(webapp2.RequestHandler):
     def render(self,roll):
         template_values={}
-        roll = self.request.get('roll')
         roll = roll.upper()
         path = "templates/student.html"
         template_values['present'] = True
         template_values['roll'] = roll
-        data = None
+        template_values['data'] = None
         if roll:
             if roll in database:
                 data = database[roll]
+                template_values['data'] = pprint.pformat(data)
                 graph = self.request.get('graph')
                 if not str(graph) == '0':
                     egp_str = self.request.get('egp')
@@ -372,7 +372,6 @@ class StudentHandler(webapp2.RequestHandler):
                 memcache.set('_roll_'+str(roll)+str(graph),template_values)
             else:
                 template_values['present'] = False
-        template_values['data'] = data
         self.response.out.write(template.render(path, template_values))
     def get(self):
         roll = self.request.get('roll')
@@ -389,18 +388,17 @@ class StatsHandler(webapp2.RequestHandler):
         batch = self.request.get('batch','')
         branch = self.request.get('branch','')
         if not branch and not batch: # Display all statistics links
-            path = "templates/stats_hardcoded.html"
-##            data = memcache.get('_stats_data')
-##            if not data:
-##                data = {'Lists':[],'Dicts':{}}
-##                for each in cg_distribution['FalseFalse']:
-##                    if isinstance(cg_distribution['FalseFalse'][each], list):
-##                        data['Lists'].append(each)
-##                    else:
-##                        data['Dicts'][each] = sorted(list(cg_distribution['FalseFalse'][each].keys()))
-##                data['Lists'] = sorted(data['Lists'])
-##                memcache.set('_stats_data',data)
-##            template_values['data'] = data
+            data = memcache.get('_stats_data')
+            if not data:
+                data = {'Lists':[],'Dicts':{}}
+                for each in cg_distribution['FalseFalse']:
+                    if isinstance(cg_distribution['FalseFalse'][each], list):
+                        data['Lists'].append(each)
+                    else:
+                        data['Dicts'][each] = sorted(list(cg_distribution['FalseFalse'][each].keys()))
+                data['Lists'] = sorted(data['Lists'])
+                memcache.set('_stats_data',data)
+            template_values['data'] = data
         else:                        # Display the relevant statistics
             cumulative = self.request.get('cumulative',False)
             percent = self.request.get('percent',True)
@@ -443,18 +441,16 @@ class PerformanceHandler(webapp2.RequestHandler):
         template_values = {}
         q = self.request.get('q', False)
         if q == 'batchwise':
-##            template_values['perfdata'] = cg_avgs[1]
-##            to_render = template.render("templates/perfbatchwise.html", template_values)
             to_render = memcache.get('_perf_batchwise')
             if not to_render:
-                to_render = template.render("templates/perfbatchwise_hardcoded.html", {})
+                template_values['perfdata'] = cg_avgs[1]
+                to_render = template.render("templates/perfbatchwise.html", template_values)
                 memcache.set('_perf_batchwise', to_render)
         else:
-##            template_values['perfdata'] = cg_avgs[0]
-##            to_render = template.render("templates/performance.html", template_values)
             to_render = memcache.get('_perf_complete')
             if not to_render:
-                to_render = template.render("templates/performance_hardcoded.html", {})
+                template_values['perfdata'] = cg_avgs[0]
+                to_render = template.render("templates/performance.html", template_values)
                 memcache.set('_perf_complete', to_render)
         self.response.out.write(to_render)
 
@@ -462,12 +458,13 @@ class CoursePerfHandler(webapp2.RequestHandler):
     def get(self):
         to_render = memcache.get('_perf_course')
         if not to_render:
-            to_render = template.render("templates/course_perf_hardcoded.html", {})
+            stats = []
+            for cur in sorted(course_stats):
+                stats.append([cur, course_stats[cur]])
+            template_values = {'course_stats': stats}
+            to_render = template.render("templates/course_perf.html", template_values)
             memcache.set('_perf_course',to_render)
         self.response.out.write(to_render)
-##        template_values = {'course_stats': course_stats}
-##        to_render = template.render("templates/course_perf.html", template_values)
-##        self.response.out.write(to_render)
 
 class PrivacyHandler(webapp2.RequestHandler):
     def get(self):
@@ -503,19 +500,19 @@ class ChangelogHandler(webapp2.RequestHandler):
 
 def handle_404(request, response, exception):
     logging.exception(exception)
-    response.write('Oops! Yoou seem to have wandered off! The requested page does not exist.')
+    response.write('Oops! Yoou seem to have wandered off! '
+                   'The requested url/page does not exist. ')
     response.set_status(404)
 
 def handle_500(request, response, exception):
     logging.exception(exception)
     response.write('A server error occurred! Report has been logged. '
                    'If you think this is SEVERE & NOT your fault, '
-                   'kindly report it by any convenient means :)'
-                   'ashishnitinpatil@gmail.com')
+                   'kindly report it to me by any convenient means :) '
+                   '<ashishnitinpatil@gmail.com>')
     response.set_status(500)
 
 
-#Alas, the main app (appengine def)...
 app = webapp2.WSGIApplication([('/',MainHandler),
                                ('/courses',CourseHandler),
                                ('/student',StudentHandler),

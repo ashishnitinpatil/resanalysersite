@@ -1,45 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}Performance{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>Performance</title>
-</head>
-<body>
+{% block content%}
     <h2>Performance</h2>
     
     <h3>Department Performances (including First Years & Super Seniors)</h3>
-    <a href="/performance?q=batchwise">Click here for Batch-Wise Performance</a><br/><br/>
+    <a href="/performance?q=batchwise">Click here for Batch-Wise Performance</a><br><br>
         <table>
             <tr><th>Rank</th><th>Branch</th><th>Branch Avg.CG</th></tr>
 			{% for dt in perfdata %}
             <tr><td>{{ dt.0 }}.</td><td>{{ dt.1 }}</td><td>{{ dt.2 }}</td></tr>
 			{% endfor %}
         </table>
-    
-</body>
-</html>
+{% endblock %}

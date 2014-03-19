@@ -1,33 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}Individual Student Records & Analytics{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>Individual Student Records & Analysis</title>
+{% block script %}
 	{% if graph %}
         <script type="text/javascript" src="/static/js/jquery.min.js"></script>
 		<script type="text/javascript">
@@ -108,7 +83,7 @@
 				tooltip: {
 					formatter: function() {
 						var point = this.point,
-							s = this.x +' : <b>'+ this.y +'</b><br/>';
+							s = this.x +' : <b>'+ this.y +'</b><br>';
 						if (point.drilldown) {
 							s += 'Click to view '+ point.category +' course-wise grades';
 						} else {
@@ -129,41 +104,40 @@
 			.highcharts(); // return chart
 		});
 	</script>
-</head>
-<body>
-        <script src="/static/js/highcharts.js"></script>
+	{% endif %}
+{% endblock %}
+
+{% block content%}
+	{% if graph %}
+		<script src="/static/js/highcharts.js"></script>
         <script src="/static/js/modules/exporting.js"></script>
 
         <div id="container" style="min-width: 400px; width:100%; height: 400px; margin: 0 auto"></div>
 		{% if egp %}
-		<br/><a href="/student?roll={{roll}}&graph=1&egp=0">SGPA-wise</a>.
+		<br><a href="/student?roll={{roll}}&graph=1&egp=0">SGPA-wise</a>.
 		{% else %}
-		<br/><a href="/student?roll={{roll}}&graph=1&egp=1">EGP-wise</a>.
+		<br><a href="/student?roll={{roll}}&graph=1&egp=1">EGP-wise</a>.
 		{% endif %}
-		<br/><br/><font color="red">Do NOT misuse following info. For all you know, it may be wrong!</font>
-		<br/>Ranking (according to current CGPA) for {{ roll}}
-		<br/>Batch Rank - {{ ranks.batch_dept.0 }} / {{ ranks.batch_dept.1 }}
-		<br/>Department Rank - {{ ranks.dept.0 }} / {{ ranks.dept.1 }}
-		<br/>Batch Rank (all departments)- {{ ranks.batch_insti.0 }} / {{ ranks.batch_insti.1 }}
-		<br/>Institute Ranking - {{ ranks.insti.0 }} / {{ ranks.insti.1 }}
-		<br/><br/><a href="/student?roll={{roll}}&graph=0">Click here</a> for data.<br/>
-    {% else %}
-</head>
-<body>
-		<h3>Individual Student Records & Analysis</h3>
+		<br><br><span class="highlight">Please do NOT misuse following info.</span>
+		<br>Ranking (according to current CGPA) for {{ roll}}
+		<table>
+		<br>Batch Rank - {{ ranks.batch_dept.0 }} / {{ ranks.batch_dept.1 }}
+		<br>Dept. Rank - {{ ranks.dept.0 }} / {{ ranks.dept.1 }}
+		<br>Batch Rank (all dept.s)- {{ ranks.batch_insti.0 }} / {{ ranks.batch_insti.1 }}
+		<br>Institute Ranking - {{ ranks.insti.0 }} / {{ ranks.insti.1 }}
+		<br><br><a href="/student?roll={{roll}}&graph=0">Click here</a> for data.<br>
+	{% else %}
+		<h3>Individual Student Records & Analytics</h3>
 		{% if not data %}
-		Enter your Roll No. to fetch Records & Analyse it.<br/>e.g. BT11CIV001, S001, BA10ARC001, etc<br/>
+		Enter your Roll No. to fetch your records.<br>e.g. BT10CIV001, S001, BA10ARC001, etc.<br>
 		<form method="post"><input autofocus type="text" name="roll" value="" placeholder="Roll No" />
-		<input type="submit" value="Fetch" /><br/>
+		<input type="submit" value="Fetch" /><br>
 		{% if not present %}<span class="error">Incorrect Roll No</span>{% endif %}
 		</form>
 		{% else %}
-        <a href="/student?roll={{roll}}&graph=1">Click here</a> for graph.<br/>
-		{% for key,value in data.items %}
-        {{ key }} -- {{ value }}<br/>
-        {% endfor %}
+		<a href="/student?roll={{roll}}&graph=1">Click here</a> for graph.<br>
+		<pre class="left">{{ data }}</pre>
 		{% endif %}
-    {% endif %}
-    <br/>
-</body>
-</html>
+	{% endif %}
+	<br>
+{% endblock %}

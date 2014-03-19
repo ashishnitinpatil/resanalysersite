@@ -1,42 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}List of all Courses{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>List of all Courses</title>
-</head>
-<body>
+{% block content%}
     <h3>List of all Courses</h3>
-    <div style="text-align:left">
-    <ol>
-    {% for each in data %}
-    <li><a href="/courses?serial={{each.0}}">({{each.0}}) {{each.1}}</a></li>
-    {% endfor %}
-    <ol>
-    <br/>
-</body>
-</html>
+    <div class="left">
+	<ol>
+	{% for each in data %}
+	<li><a href="/courses?serial={{each.0}}">({{each.0}}) {{each.1}}</a></li>
+	{% endfor %}
+	</ol>
+    <br>
+{% endblock %}

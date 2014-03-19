@@ -1,3 +1,7 @@
+html {
+	overflow: -moz-scrollbars-vertical; 
+	overflow-y: scroll;
+}
 body
 	{
 		background:#222222 url('/static/bg_img.jpg') repeat fixed center;
@@ -6,16 +10,15 @@ body
         color: white;
 		text-align: center;
 		width: 80%;
-		height: 100%;
-		margin: 0% 10%;
+		margin: auto;
 	}
-.new
+.highlight
         {
         color: red;
     }
 .immo
         {
-        color: green;
+        color: blue;
         text-decoration: none;
     }
 .immo:hover
@@ -27,8 +30,7 @@ table
 		position: relative;
         table-layout: fixed;
 		text-align: center;
-        margin-left: auto;
-        margin-right: auto;
+        margin: auto;
 	}
 .left
         {
@@ -40,11 +42,11 @@ table.data
     }
 h1,h2,h3,h4
         {
-    font-family: Comic Sans MS, Arial, Times New Roman, Courier New, sans-serif;
     color: orange;
     }
-.bot
+.topbar
 	{
+		margin-top: 10px;
 		width: 100%;
 		position:relative;
 		word-spacing:50px;
@@ -59,10 +61,6 @@ a
 a:hover
 	{
 		text-decoration: underline;
-	}
-.center
-        {
-		text-align: center;
 	}
 td
         {

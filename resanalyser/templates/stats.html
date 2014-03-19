@@ -1,36 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}Statistics{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>Statistics</title>
-{% if not data %}		
+{% block script %}
+	{% if not data %}
         <script type="text/javascript" src="/static/js/jquery.min.js"></script>
 		<script type="text/javascript">
+
+		(function($){ // encapsulate jQuery
+
 		$(function () {
 			$('#container').highcharts({
 				chart: {
@@ -71,54 +49,58 @@
 				]
 			});
 		});
-		</script>
-</head>
-<body>
+		
+
+	})(jQuery);
+	</script>
+	{% endif %}
+{% endblock %}
+
+{% block content%}
+	{% if not data %}
         <script src="/static/js/highcharts.js"></script>
         <script src="/static/js/modules/exporting.js"></script>
 
-        <div id="container" style="min-width: 400px; width:100%; height: 400px; margin: 0 auto"></div>
+        <div id="container" style="min-width: 400px; width:100%; height: 400px; margin: 0 auto;"></div>
         {% if cumulative %}
             {% if percent %}
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=0">View No.s</a>
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=1">Non-Cumulative</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=0">View No.s</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=1">Non-Cumulative</a>
             {% else %}
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=1">View Percentages</a>
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=0">Non-Cumulative</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=1">View Percentages</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=0">Non-Cumulative</a>
             {% endif %}
         {% else %}
             {% if percent %}
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=0">View No.s</a>
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=1">Cumulative</a>
-            {% else %}
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=1">View Percentages</a>
-            <br/><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=0">Cumulative</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=0">View No.s</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=1">Cumulative</a>
+			{% else %}
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=1">View Percentages</a>
+			<br><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=1&percent=0">Cumulative</a>
             {% endif %}
         {% endif %}
+
     {% else %}
-</head>
-<body>
+
             <h3>Statistics</h3><hr>
             <div class="left">
-            Batch-wise
-            <ul>
-            {% for batch in data.Lists %}
-            <li><a href="/stats?batch={{batch|safe}}&cumulative=0&percent=1">{{ batch }}</a></li>
-            {% endfor %}
-            </ul><hr>
             Department-wise
             <ol>
             {% for branch,batches in data.Dicts.items %}
-                <li><a href="/stats?branch={{branch|safe}}&cumulative=0&percent=1">{{ branch }}</a></li>
-                <ul>
+                <li><a href="#" onclick="toggle_visibility('branch_{{ forloop.counter }}');">{{ branch }}</a></li>
+                <div id="branch_{{ forloop.counter }}" style="display: none;"><ul>
                 {% for batch in batches %}
                 <li><a href="/stats?branch={{branch|safe}}&batch={{batch|safe}}&cumulative=0&percent=1">{{ batch }}</a></li>
                 {% endfor %}
-                </ul>
+                </ul></div>
             {% endfor %}
-            </ol>
+            </ol><hr>
+			<a href="#" onclick="toggle_visibility('batch');">Batch-wise</a>
+			<div id="batch" style="display: block;"><ul>
+            {% for batch in data.Lists %}
+            <li><a href="/stats?batch={{batch|safe}}&cumulative=0&percent=1">{{ batch }}</a></li>
+            {% endfor %}
+            </ul></div>
             </div>
     {% endif %}
-    <br/>
-</body>
-</html>
+{% endblock %}

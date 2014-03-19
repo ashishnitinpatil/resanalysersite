@@ -1,5 +1,3 @@
 User-agent: *
-Disallow: /courses
-Disallow: /stats
-Disallow: /performance
-Disallow: /marklist
+Allow: /about
+Disallow: *

@@ -1,43 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,Resanalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+{% extends "base.html" %}
 
-	<!--Google Analytics-->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-33241707-1']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
-	<!--End of Google Analytics script-->
+{% block title %}About{% endblock %}
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur.">
-
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>About</title>
-</head>
-<body>
+{% block content%}
     <h2>About</h2>
-    <div class="center">
-        <a href="/">ResAnalyser</a> is a web app for analysing results of <a href="http://www.vnit.ac.in">VNIT, Nagpur</a>.<br/><br/>
-        The Site is developed & maintained by <a class="immo" href="https://www.facebook.com/ashishnitinpatil">!mmorta!</a>.<br/><br/>
-        Feel free to send your comments on <a href="/">ResAnalyser</a> to <a href="https://www.facebook.com/ashishnitinpatil">me</a>.<br/>
-        The web app is powered by the <a href="https://developers.google.com/appengine">Google App Engine</a> platform.<br/>
-        It runs on <a href="http://www.python.org">Python</a> & uses the <a href="http://www.highcharts.com/products/highcharts">Highcharts</a> javascript library for producing graphs.<br/>
-		Feel free to <a href="https://github.com/ashishnitinpatil/resanalysersite">download</a> & use the FOSS code yourself! - <a href="https://github.com/ashishnitinpatil/resanalysersite">Github Repo</a><br/>
+    <div>
+		<a href="/">ResAnalyser</a> is a web app for analysing results of <a target="_blank" href="http://www.vnit.ac.in">VNIT, Nagpur</a>.<br>
+		The Site is developed & maintained by <a target="_blank" class="immo" href="https://www.facebook.com/ashishnitinpatil">Ashish Nitin Patil</a>.<br><br>
+        Feel free to send any comments/feedback to <a href="https://www.facebook.com/ashishnitinpatil">me</a>.<br>
+        The web app is powered by the <a href="https://developers.google.com/appengine">Google App Engine</a> platform.<br>
+        It runs on <a href="http://www.python.org">Python</a> & uses the <a href="http://www.highcharts.com/products/highcharts">Highcharts</a> javascript library for producing graphs.<br>
+		Feel free to <a href="https://github.com/ashishnitinpatil/resanalysersite/archive/master.zip">download</a> & use the FOSS code from my <a href="https://github.com/ashishnitinpatil/resanalysersite">Github Repo</a><br>
     </div>
-</body>
-</html>
+{% endblock %}
