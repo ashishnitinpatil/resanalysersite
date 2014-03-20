@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Licensed under Creative Commons Attribution 3.0 Unported License;
+from __future__ import print_function
 
 import os, re, sys, time, logging
 import json
@@ -181,7 +181,16 @@ def get_toppers():
             print(dept, batch, database[max(department_data[dept][batch],
                                         key=lambda x: department_data[dept][batch][x])]['Name'])
 
-course_perf()
-avg_cgs()
-grade_stats()
+# Get most common names/surnames
+def most_common_name():
+    from collections import Counter
+    import pprint
+    all_names = " ".join(database[stud]['Name'] for stud in database).split()
+    for i,tup in enumerate(Counter(all_names).most_common(20)):
+        print(i+1, ". ", tup[0], ' (', tup[1],')', sep='' )
+
+##course_perf()
+##avg_cgs()
+##grade_stats()
+most_common_name()
 
