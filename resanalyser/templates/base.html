@@ -33,6 +33,14 @@
 			}
 	}
 	</script>
+	<!-- Begin Share This Script -->
+	<script type="text/javascript">var switchTo5x=true;</script>
+	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+	<script type="text/javascript" src="http://s.sharethis.com/loader.js"></script>
+	<script type="text/javascript">
+		stLight.options({publisher: "ur-db166ae3-b219-8846-3e2e-776d8ca3a00e", doNotHash: false, doNotCopy: false, hashAddressBar: false});
+	</script>
+	<!-- End Share This Script -->
 
 	<meta name="twitter:site:id" content="@ashishnpatil">
 	<meta name="twitter:creator" content="@ashishnpatil">
@@ -45,7 +53,7 @@
 	{% block script %}{% endblock %}
 </head>
 <body>
-    <!--Top Bar Begin-->
+    <!--Top Bar-->
     <div class="topbar">
         <a href="/about">About</a>
         |
@@ -54,8 +62,17 @@
         <a href="/privacy">Privacy</a>
 		|
         <a href="/tos">ToS</a>
-    </div>
+	</div>
 	<!--Top Bar End-->
+	<!--Social Media Share Bar-->
+	<div class="sharebar">
+		<span class='st_facebook_large' displayText='Facebook'></span>
+		<span class='st_twitter_large' displayText='Tweet'></span>
+		<span class='st_googleplus_large' displayText='Google +'></span>
+		<span class='st_blogger_large' displayText='Blogger'></span>
+		<span class='st_email_large' displayText='Email'></span>
+	</div>
+	<!--Share Bar End-->
 	<hr>
 	{% block content %}{% endblock %}
 </body>
