@@ -30,7 +30,7 @@ else:
 
     latest_terms = [latest_normal_term,
                     latest_normal_term + " RE-EXAM",
-                    today.year + " TERM SUMMER"]
+                    str(today.year) + " TERM SUMMER"]
 
 # Manual over-ride
 # latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM', '2013 TERM SUMMER']
@@ -329,6 +329,9 @@ class PDF_Parser:
         if cur_roll in database:
             all_details = database[cur_roll]
 
+        # Keeps track of the last term that the student had.
+        # Useful because we keep very old results too (latest_terms don't match)
+        last_term = "0"
         good_to_go = True
         if cur_stud_type == 'Dont Know':
             good_to_go = False
@@ -446,7 +449,8 @@ class PDF_Parser:
                     #all_details['Records'][cur_term]['Credits Earned'] = creds_sem
                     all_details['Records'][cur_term]['EGP_Total'] = egp_tot
                     all_details['Records'][cur_term]['Credits_Total'] = creds_tot
-                    if cur_term in latest_terms:
+                    if cur_term > last_term:
+                        last_term = cur_term
                         all_details['CGPA'] = cgpa_sem
                         all_details['Credits_Total'] = creds_tot
                         all_details['EGP_Total'] = egp_tot
@@ -619,9 +623,9 @@ class Analyser:
                 return mean, devn, fail
 
     def Gradify(self,marklist,percent=True,cumulative=False):
-        categories = [[10,0],[9,0],[8,0],[7,0],[6,0],[5,0],[4,0]]#,['F',0]]
+        categories = [[10,0],[9,0],[8,0],[7,0],[6,0],[5,0],[4,0],['F',0]]
         if cumulative:
-            categories = [[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]#,['F',0]]
+            categories = [['F',0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]
         for mark in marklist:
             if isinstance(mark,tuple):
                 mark = mark[0]
@@ -660,7 +664,7 @@ class Analyser:
 
     def Course_Performance(self,course,exclude_re=True,percent=True,cumulative=False):
         # Need terms & their graded data.
-        poss_grades = [10, 9, 8, 7, 6, 5, 4, 'F']
+        poss_grades = [10, 9, 8, 7, 6, 5, 4, 0]
         big_list = self.Make_Marklist(course)
         big_list.sort(key=(lambda k: k[0]))
         graded_list = list()
@@ -668,7 +672,7 @@ class Analyser:
         for each in big_list:
             if exclude_re and each[0][-1] == 'M':
                 continue
-            course_terms.append(each[0])
+            course_terms.append(str(each[0]))
             graded_list.append(self.Gradify(each[1:],percent,cumulative))
         assert len(course_terms) == len(graded_list)
         to_return = [course_terms,list()]
@@ -692,19 +696,17 @@ class Analyser:
             else:
                 cur_data['sg'] = stud_data['Records'][term]['SGPA']
             cur_data['courses'], cur_data['data'] = list(), list()
-            cur_data['name'] = term
+            cur_data['name'] = str(term)
             for course in stud_data['Records'][term]['Courses']:
-                cur_data['courses'].append(course_data[course]['Name']+' ('+course+')')
+                cur_data['courses'].append(str(course_data[course]['Name']+' ('+course+')'))
                 cur_data['data'].append(stud_data['Records'][term]['Courses'][course])
             term_data.append(cur_data)
-            terms.append(cur_data['name'])
+            terms.append(str(cur_data['name']))
         for i in range(len(term_data)):
             term_data[i]['color'] = i
         to_return.append(terms)
         to_return.append(term_data)
         return to_return
-
-    # End of Analyser
 
 
 ## The Main function --> (to give Command Line Interface feel)

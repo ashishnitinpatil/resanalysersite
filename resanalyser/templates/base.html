@@ -1,56 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
-	<link rel="shortcut icon" href="/static/favicon.ico" />
-	<link rel="apple-touch-icon" href="/static/favicon.ico"/>
-	<meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
-	<meta name="keywords" content="VNIT,Result,Analyser,ResAnalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/static/style.css" type="text/css" media="screen" />
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="apple-touch-icon" href="/static/favicon.ico"/>
+    <meta name="description" content="ResAnalyser is a webapp for analysing results of VNIT, Nagpur." />
+    <meta name="keywords" content="VNIT,Result,Analyser,ResAnalyser,Nagpur,NIT,Statistics,Analysis,Analytics,Visvesvaraya National Institute of Technology" />
 
-	<!--Google Analytics Begin-->
-	<script>
-	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
+    <!--Google Analytics Begin-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 	  ga('create', 'UA-49177507-2', 'vnitresultanalyser.appspot.com');
 	  ga('send', 'pageview');
-	</script>
-	<!--Google Analytics End-->
-	
-	<!--Div Hide/Show Script-->
-	<script type="text/javascript">
-	function toggle_visibility(ID)
-	{
-		if (document.getElementById(ID).style.display == "block")
-			{
-				document.getElementById(ID).style.display = "none";
-			}
-		else{
-				document.getElementById(ID).style.display = "block";
-			}
-	}
-	</script>
-	<!-- Begin Share This Script -->
-	<script type="text/javascript">var switchTo5x=true;</script>
-	<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
-	<script type="text/javascript" src="http://s.sharethis.com/loader.js"></script>
-	<script type="text/javascript">
-		stLight.options({publisher: "ur-db166ae3-b219-8846-3e2e-776d8ca3a00e", doNotHash: false, doNotCopy: false, hashAddressBar: false});
-	</script>
-	<!-- End Share This Script -->
+    </script>
+    <!--Google Analytics End-->
+    
+    <!--Div Hide/Show Script-->
+    <script type="text/javascript">
+    function toggle_visibility(ID)
+    {
+        if (document.getElementById(ID).style.display == "block")
+        {
+            document.getElementById(ID).style.display = "none";
+        }
+        else
+        {
+            document.getElementById(ID).style.display = "block";
+        }
+    }
+    </script>
 
-	<meta name="twitter:site:id" content="@ashishnpatil">
-	<meta name="twitter:creator" content="@ashishnpatil">
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="VNIT Result Analyser">
+    <meta name="twitter:site:id" content="@ashishnpatil">
+    <meta name="twitter:creator" content="@ashishnpatil">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="VNIT ResAnalyser">
 
-	<link rel="author" href="https://www.facebook.com/ashishnitinpatil">
-	<link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
-	<title>{% block title %}Result Analyser{% endblock %}</title>
-	{% block script %}{% endblock %}
+    <link rel="author" href="https://www.facebook.com/ashishnitinpatil">
+    <link rel="publisher" href="https://www.facebook.com/ashishnitinpatil">
+    <title>{% block title %}Result Analyser{% endblock %}</title>
+    {% block script %}{% endblock %}
 </head>
 <body>
     <!--Top Bar Begin-->
@@ -60,20 +52,11 @@
         <a href="/">Home</a>
         |
         <a href="/privacy">Privacy</a>
-		|
+        |
         <a href="/tos">ToS</a>
     </div>
-	<!--Top Bar End-->
-	<!--Social Media Share Bar-->
-	<div class="sharebar">
-		<span class='st_facebook_large' displayText='Facebook'></span>
-		<span class='st_twitter_large' displayText='Tweet'></span>
-		<span class='st_googleplus_large' displayText='Google +'></span>
-		<span class='st_blogger_large' displayText='Blogger'></span>
-		<span class='st_email_large' displayText='Email'></span>
-	</div>
-	<!--Share Bar End-->
-	<hr>
-	{% block content %}{% endblock %}
+    <!--Top Bar End-->
+    <hr>
+    {% block content %}{% endblock %}
 </body>
 </html>

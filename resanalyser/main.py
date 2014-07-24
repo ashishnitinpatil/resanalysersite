@@ -14,7 +14,14 @@ from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 import datetime
 
+# Set the current latest terms depending on the time of year
 today = datetime.datetime.today()
+
+# Important note -
+# The thing with getting the student's current year, or for that matter,
+# latest term, we need to keep in mind that Winter results will arrive only
+# 'next' year (i.e. in January) & Summer, sometime in June.
+# The calculations change accordingly.
 if today.month < 6:
     latest_term = "AUTUMN"
     latest_normal_term = str(today.year-1) + " " + latest_term
@@ -33,20 +40,14 @@ else:
                     latest_normal_term + " RE-EXAM",
                     str(today.year) + " TERM SUMMER"]
 
+# Manual over-ride
+# latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM', '2013 TERM SUMMER']
+
 grades = {'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6,
           'SS': 10, 'CD': 5, 'DD': 4, 'FF': 0, 'W': 0}
 terms = ['SPRING', 'AUTUMN', 'RE-EXAM', 'SUMMER']
 
-
-database = dict() # For individual student data storing
-course_data = dict() # Records of every course for every sem
-department_data = dict() # Dept.-wise student records by cur_cg
-cg_avgs = dict()
-cg_distribution = dict()
-cg_stats = dict()
-course_stats = dict()
-rank_data = dict()
-
+# We still include the Analyser class (cp cv) because I can't handle globals
 class Analyser:
 
     def All_Courses(self, serial=True, terms=True, alphabetically=True):
@@ -256,6 +257,17 @@ class Analyser:
         to_return.append(terms)
         to_return.append(term_data)
         return to_return
+
+
+database = dict() # For individual student data storing
+course_data = dict() # Records of every course for every sem
+department_data = dict() # Dept.-wise student records by cur_cg
+cg_avgs = dict()
+cg_distribution = dict()
+cg_stats = dict()
+course_stats = dict()
+rank_data = dict()
+
 
 def run_once():
     global cg_avgs, cg_distribution, cg_stats, course_data, course_stats, \
