@@ -329,6 +329,9 @@ class PDF_Parser:
         if cur_roll in database:
             all_details = database[cur_roll]
 
+        # Keeps track of the last term that the student had.
+        # Useful because we keep very old results too (latest_terms don't match)
+        last_term = "0"
         good_to_go = True
         if cur_stud_type == 'Dont Know':
             good_to_go = False
@@ -446,7 +449,8 @@ class PDF_Parser:
                     #all_details['Records'][cur_term]['Credits Earned'] = creds_sem
                     all_details['Records'][cur_term]['EGP_Total'] = egp_tot
                     all_details['Records'][cur_term]['Credits_Total'] = creds_tot
-                    if cur_term in latest_terms:
+                    if cur_term > last_term:
+                        last_term = cur_term
                         all_details['CGPA'] = cgpa_sem
                         all_details['Credits_Total'] = creds_tot
                         all_details['EGP_Total'] = egp_tot
