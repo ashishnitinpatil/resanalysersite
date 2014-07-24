@@ -260,6 +260,12 @@ class PDF_Parser:
             cur_stud_type = 'B. Arch.'
         elif roll[:2] == 'MT' or roll[2:4] == 'MT':
             cur_stud_type = 'M. Tech.'
+        elif roll[:2] in {'RA','RT'} or roll[2:4] in {'RA','RT'}:
+            cur_stud_type = 'M. Tech. by Research'
+        elif roll[0] == 'D' or roll[2] == 'D': # DT DS or DA
+            cur_stud_type = 'PhD'
+        elif roll[:2] == 'MS' or roll[2:4] == 'MS':
+            cur_stud_type = 'M. Sc.'
         else:
             cur_stud_type = "Don't Know"
             print("Student type is undefined for -", roll)
@@ -274,6 +280,8 @@ class PDF_Parser:
                 stud_year = cur_year - int(roll[:2])
             else:
                 stud_year = 1 # first year
+        else:
+            return -1
         return stud_year
 
     def get_batch(self, roll):
@@ -284,7 +292,7 @@ class PDF_Parser:
                 batch = 'Snr'
         elif roll[:2] == 'AR':
             batch = 'BA' + acad_year[2:4]
-        elif roll[:2].isdecimal():
+        elif roll[:2].isdigit():
             batch = roll[2:4] + roll[:2]
         else:
             batch = roll[:4]
@@ -735,11 +743,15 @@ def main():
     # Write the data to files so we dont have to redo anything (if at all)
     print("\n\tDumping all data into txt files...")
     with open(os.path.join(os.getcwd(),'database.txt'),'w') as g1:
-        g1.write(json.dumps(database))
+        json.dump(database, g1, encoding='cp1252')
+        #json.dump(database, g1)
+    print("\n\tGenerated database.txt")
     with open(os.path.join(os.getcwd(),'course_data.txt'),'w') as g2:
-        g2.write(json.dumps(course_data))
+        json.dump(course_data, g2)
+    print("\n\tGenerated course_data.txt")
     with open(os.path.join(os.getcwd(),'department_data.txt'),'w') as g3:
-        g3.write(json.dumps(department_data))
+        json.dump(department_data, g3)
+    print("\n\tGenerated department_data.txt")
     print("\tDumping finished...")
     print("\n\tProgram terminated successfully.")
 

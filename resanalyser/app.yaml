@@ -22,6 +22,7 @@ handlers:
   static_dir: static
 - url: .*
   script: main.app
+  secure: never
 
 error_handlers:
   - error_code: over_quota

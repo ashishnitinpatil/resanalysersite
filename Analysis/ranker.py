@@ -46,18 +46,8 @@ for batch in batches:
     insti_batch_mark_list.sort(reverse=True)
     rank_data[batch] = insti_batch_mark_list
 
+print("\n\tRanking done.")
 with open(os.path.join(os.getcwd(),'rank_data.txt'),'w') as g4:
+    print("\n\tGenerated rank_data.txt")
     g4.write(json.dumps(rank_data))
-
-with open(os.path.join(os.getcwd(),'rank_data.txt'),'r') as rakk_file:
-    rakk_data = json.load(rakk_file)
-
-with open(os.path.join(os.getcwd(),'database.txt'),'r') as data_file:
-    database = json.load(data_file)
-
-with open(os.path.join(os.getcwd(),'course_data.txt'),'r') as course_file:
-    course_data = json.load(course_file)
-
-with open(os.path.join(os.getcwd(),'rank_data.txt'),'r') as rank_file:
-    rank_data = json.load(rank_file)
 
