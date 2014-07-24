@@ -31,7 +31,7 @@ else:
 
     latest_terms = [latest_normal_term,
                     latest_normal_term + " RE-EXAM",
-                    today.year + " TERM SUMMER"]
+                    str(today.year) + " TERM SUMMER"]
 
 grades = {'AA': 10, 'AB': 9, 'BB': 8, 'BC': 7, 'CC': 6,
           'SS': 10, 'CD': 5, 'DD': 4, 'FF': 0, 'W': 0}
