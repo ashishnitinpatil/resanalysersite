@@ -1,18 +1,9 @@
 #!/usr/bin/env python
-# Licensed under Creative Commons Attribution 3.0 Unported License;
 
 import os, re, sys, time, logging
 import json
 
 from ResAnalyser import Analyser
-
-# Begin ResAnalyser --->
-
-latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM']
-database = {} # For individual student data storing
-course_data = {} # For record keeping of every course for every sem
-grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':'W','FF':'FF','SS':'SS'}
-terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
 
 def gather_data(): # Load stuff from the txt files
 	global database, course_data
@@ -182,7 +173,7 @@ def get_toppers():
             print(dept, batch, database[max(department_data[dept][batch],
                                         key=lambda x: department_data[dept][batch][x])]['Name'])
 
-#course_perf()
+##course_perf()
 avg_cgs()
 grade_stats()
 
