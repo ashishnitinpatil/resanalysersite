@@ -1,14 +1,28 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
-import os, re, sys, time, logging
+import os
+import re
+import sys
+import time
+import logging
 import json
+from collections import Counter
+import pprint
 
 from ResAnalyser import Analyser
 
+# Begin ResAnalyser --->
+
+latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM']
+database = {} # For individual student data storing
+course_data = {} # For record keeping of every course for every sem
+grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':'W','FF':'FF','SS':'SS'}
+terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
+
 def gather_data(): # Load stuff from the txt files
 	global database, course_data
-	database = json.load(open(os.path.join(os.getcwd(),'database.txt'),'r'),
-                         encoding='cp1252')
+	database = json.load(open(os.path.join(os.getcwd(),'database.txt'),'r'))
 	course_data = json.load(open(os.path.join(os.getcwd(),'course_data.txt'),'r'))
 
 ##dt = open(os.path.join(os.getcwd(),'database.txt'),'r')
@@ -35,20 +49,21 @@ def course_perf():
             course_marklist.extend(term_marklist)
         course_performance[course]['All'] = Analyser().Mean_Deviation(course_marklist)
     min_studs = 50
+    limit = 20
     print("Best performing courses (according to mean of grades)")
     course_stats['Best CGs'] = [(c,course_data[c]['Name'],course_performance[c]['All'][0])
-                            for c in sorted(course_performance,key=lambda x: course_performance[x]['All'][0], reverse=True) if course_data[c]['Students'] >= min_studs][:20] # Mean-wise
+                            for c in sorted(course_performance,key=lambda x: course_performance[x]['All'][0], reverse=True) if course_data[c]['Students'] >= min_studs][:limit]
     course_stats['Worst CGs'] = [(c,course_data[c]['Name'],course_performance[c]['All'][0])
-                            for c in sorted(course_performance,key=lambda x: course_performance[x]['All'][0]) if course_data[c]['Students'] >= min_studs][:20] # Mean-wise
+                            for c in sorted(course_performance,key=lambda x: course_performance[x]['All'][0]) if course_data[c]['Students'] >= min_studs][:limit]
     course_stats['Most Ws'] = [(c,course_data[c]['Name'],course_data[c]['W'])
-                            for c in sorted(course_data,key=lambda x: course_data[x]['W'], reverse=True) if course_data[c]['Students'] >= min_studs][:20] # Most Ws
+                            for c in sorted(course_data,key=lambda x: course_data[x]['W'], reverse=True) if course_data[c]['Students'] >= min_studs][:limit]
     course_stats['Most FFs'] = [(c,course_data[c]['Name'],course_data[c]['FF'])
-                            for c in sorted(course_data,key=lambda x: course_data[x]['FF'], reverse=True) if course_data[c]['Students'] >= min_studs][:20] # Most FFs
+                            for c in sorted(course_data,key=lambda x: course_data[x]['FF'], reverse=True) if course_data[c]['Students'] >= min_studs][:limit]
 
     course_stats['Most W %'] = [(c,course_data[c]['Name'],course_data[c]['W']*100/course_data[c]['Students'])
-                            for c in sorted(course_data,key=lambda x: course_data[x]['W']*100/course_data[x]['Students'], reverse=True) if course_data[c]['Students'] >= min_studs][:20] # Most Ws percent
+                            for c in sorted(course_data,key=lambda x: course_data[x]['W']*100/course_data[x]['Students'], reverse=True) if course_data[c]['Students'] >= min_studs][:limit]
     course_stats['Most FF %'] = [(c,course_data[c]['Name'],course_data[c]['FF']*100/course_data[c]['Students'])
-                            for c in sorted(course_data,key=lambda x: course_data[x]['FF']*100/course_data[x]['Students'], reverse=True) if course_data[c]['Students'] >= min_studs][:20] # Most FFs percent
+                            for c in sorted(course_data,key=lambda x: course_data[x]['FF']*100/course_data[x]['Students'], reverse=True) if course_data[c]['Students'] >= min_studs][:limit]
     for each in course_stats:
         print(each)
         print(course_stats[each])
@@ -76,13 +91,17 @@ def avg_cgs():
     spit = open(os.path.join(os.getcwd(),"cg_avgs.txt"),'w')
     meta_data = [[],[]]
     for index, branch in enumerate(sorted(insti_lvl,key=lambda x: insti_lvl[x],reverse=True)):
-        print('{0:2}. '.format(index+1), "{0:40}".format(branch), insti_lvl[branch])
+        print('{0:2}. '.format(index+1), "{0:50}".format(branch), insti_lvl[branch])
         meta_data[0].append([index+1, branch, insti_lvl[branch]])
     print("""
              *****BATCH LEVEL Average CGs*****
              """)
+    skipped_count = 0
     for index, batch in enumerate(sorted(batch_lvl,key=lambda x: batch_lvl[x],reverse=True)):
-        print('{0:2}. '.format(index+1), "{0:50}".format(batch), batch_lvl[batch])
+        if batch[:2] =='BA':
+            skipped_count += 1
+            continue
+        print('{0:2}. '.format(index+1-skipped_count), "{0:50}".format(batch), batch_lvl[batch])
         meta_data[1].append([index+1, batch, batch_lvl[batch]])
     json.dump(meta_data,spit)
     spit.close()
@@ -173,7 +192,49 @@ def get_toppers():
             print(dept, batch, database[max(department_data[dept][batch],
                                         key=lambda x: department_data[dept][batch][x])]['Name'])
 
-##course_perf()
-avg_cgs()
-grade_stats()
+# Get most common names/surnames
+def most_common_name():
+    all_names = " ".join(database[stud]['Name'] for stud in database).split()
+    print("Most common names/surnames")
+    names = Counter(all_names)
+    for i,tup in enumerate(names.most_common(20)):
+        print(i+1, ". ", tup[0], ' (', tup[1],')', sep='' )
+    print("Least common names/surnames")
+    for i,tup in enumerate(names.most_common()[-20:]):
+        print(i+1, ". ", tup[0], ' (', tup[1],')', sep='' )
+    print(names['PINAKI'], names['MOHANTY'])
 
+# Get stats for number of tries
+def no_of_tries_stats():
+    all_tries = [[database[stud]['Courses'][course]['Attempts']
+                    for course in database[stud]['Courses']
+                    if database[stud]['Courses'][course]['Attempts'] > 1]
+                    for stud in database]
+    all_tries = [each for each in all_tries if each] # remove empty lists
+    print("No. of people with at least 1 (Re/Back/W) - ",
+                            len(all_tries), len(database))
+    tries = Counter([len(each) for each in all_tries])
+    print("Most common, total number of Courses faulted (Re/Back/W)")
+    for i,tup in enumerate(tries.most_common(10)):
+        print(i+1, ". ", tup[0], ' (', tup[1],')', sep='' )
+    print("Least common, total number of Courses faulted (Re/Back/W)")
+    for i,tup in enumerate(tries.most_common()[-10:]):
+        print(10-i, ". ", tup[0], ' (', tup[1],')', sep='' )
+
+    tries = []
+    for each in all_tries:
+        tries.extend(each)
+    tries = Counter(tries)
+    print("Number of tries to successfully clear a Course (after a Re/Back/W)")
+    tot = 0
+    for i,tup in enumerate(tries.most_common()):
+        tot += tup[1]
+    for i,tup in enumerate(tries.most_common()):
+        print(i+1, ". ", tup[0], ' (', tup[1],')', sep='' )
+
+
+##course_perf()
+##avg_cgs()
+##grade_stats()
+##most_common_name()
+no_of_tries_stats()
