@@ -12,14 +12,6 @@ import pprint
 
 from ResAnalyser import Analyser
 
-# Begin ResAnalyser --->
-
-latest_terms = ['2013 SPRING','2013 SPRING RE-EXAM']
-database = {} # For individual student data storing
-course_data = {} # For record keeping of every course for every sem
-grades = {'AA':10,'AB':9,'BB':8,'BC':7,'CC':6,'CD':5,'DD':4,'W':'W','FF':'FF','SS':'SS'}
-terms = ['SPRING','AUTUMN','RE-EXAM','SUMMER']
-
 def gather_data(): # Load stuff from the txt files
 	global database, course_data
 	database = json.load(open(os.path.join(os.getcwd(),'database.txt'),'r'))
@@ -234,7 +226,7 @@ def no_of_tries_stats():
 
 
 ##course_perf()
-##avg_cgs()
-##grade_stats()
+avg_cgs()
+grade_stats()
 ##most_common_name()
 no_of_tries_stats()
